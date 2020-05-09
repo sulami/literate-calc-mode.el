@@ -32,6 +32,7 @@
 (require 'calc)
 (require 'cl)
 (require 's)
+(require 'thingatpt)
 
 ;; TODO semantic highlighting
 ;; TODO settings
