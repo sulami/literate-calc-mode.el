@@ -1,6 +1,10 @@
 #+TITLE: Literate Calc Mode
 
-Literate programming for =M-x calc=. Also an editable ticker tape.
+Literate programming for =M-x calc=.
+
+Displays inline results for calculations, supports variables and
+updates as you type (if you want). Also works in your favourite markup
+mode.
 
 * Use
 
