@@ -120,10 +120,13 @@
           (setq line-number (1+ line-number))
           (forward-line 1))))))
 
-(defun literate-calc--eval-buffer (_ _ pre-change-length)
+(defun literate-calc--eval-buffer (beg end pre-change-length)
+  "Re-eval the buffer on deletions or if we are near a calc line."
   (when (or (not (equal 0 pre-change-length))
-            (string-match literate-calc--expression
-                          (thing-at-point 'line)))
+            (save-excursion
+              (goto-char beg)
+              (string-match literate-calc--expression
+                            (thing-at-point 'line))))
     (literate-calc-eval-buffer)))
 
 (setq literate-calc-font-lock-defaults
