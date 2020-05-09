@@ -6,6 +6,9 @@ Displays inline results for calculations, supports variables and
 updates as you type (if you want). Also works in your favourite markup
 mode.
 
+#+caption: Demo
+[[file:./scrot.png]]
+
 * Use
 
 There is both a major ~literate-calc-mode~ and a minor
