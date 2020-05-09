@@ -156,4 +156,4 @@
 
 (provide 'literate-calc)
 
-;;; literate-calc.el ends here
+;;; literate-calc-mode.el ends here
