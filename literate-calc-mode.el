@@ -38,6 +38,8 @@
 ;; TODO org-babel-execute
 ;; TODO org export
 
+(defvar-local literate-calc--scope (list))
+
 (defun literate-calc--create-overlay (name result)
   (let* ((o (make-overlay (line-beginning-position)
                           (1+ (line-end-position)))))
@@ -79,29 +81,50 @@
   (remove-overlays (point-min)
                    (point-max)
                    'literate-calc
-                   t))
+                   t)
+  (setq-local literate-calc--scope (list)))
 
-(defun literate-calc--eval (&rest _)
+(defun literate-calc-eval-line ()
+  "Evaluates the calc expression on the current line."
+  (interactive)
+  (unless (string-empty-p (buffer-string))
+    (save-excursion
+      (let ((bindings (literate-calc--process-line (thing-at-point 'line)
+                                                   literate-calc--scope)))
+        (unless (null bindings)
+          (setq-local literate-calc--scope
+                      (cl-merge 'list
+                                literate-calc--scope
+                                (list bindings)
+                                (lambda (x y)
+                                  (<= (length (car y))
+                                      (length (car x)))))))))))
+
+(defun literate-calc-eval-buffer ()
+  "Evaluates all calc expressions in the current buffer in order."
+  (interactive)
   (literate-calc-clear-overlays)
   (unless (string-empty-p (buffer-string))
     (save-excursion
       (goto-char (point-min))
       (let ((buffer-line-count (count-lines (point-min) (point-max)))
-            (line-number 1)
-            (variable-scope (list)))
+            (line-number 1))
         (while (<= line-number buffer-line-count)
           (let ((bindings (literate-calc--process-line (thing-at-point 'line)
-                                                      variable-scope)))
+                                                       literate-calc--scope)))
             (unless (null bindings)
-              (setq variable-scope
+              (setq literate-calc--scope
                     (cl-merge 'list
-                              variable-scope
+                              literate-calc--scope
                               (list bindings)
                               (lambda (x y)
                                 (<= (length (car y))
-                                   (length (car x))))))))
+                                    (length (car x))))))))
           (setq line-number (1+ line-number))
           (forward-line 1))))))
+
+(defun literate-calc--eval-buffer (&rest _)
+  (literate-calc-eval-buffer))
 
 (setq literate-calc-font-lock-defaults
       (let ((identifier-regexp (rx line-start
@@ -115,18 +138,18 @@
   (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
   :after-hook
   (progn
-    (add-hook 'after-change-functions 'literate-calc--eval nil t)
-    (literate-calc--eval)))
     (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
+    (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
+    (literate-calc--eval-buffer)))
 
 (define-minor-mode literate-calc-minor-mode
   "Evaluates calc expressions"
   :lighter "lit-calc"
   :after-hook
   (progn
-    (add-hook 'after-change-functions 'literate-calc--eval nil t)
-    (literate-calc--eval)))
     (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
+    (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
+    (literate-calc--eval-buffer)))
 
 (provide 'literate-calc)
 

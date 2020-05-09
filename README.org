@@ -4,12 +4,18 @@ Literate programming for =M-x calc=. Also an editable ticker tape.
 
 * Use
 
-There is both a major ~literal-calc-mode~ and a minor
-~literal-calc-minor-mode~. The major mode does some basic syntax
+There is both a major ~literate-calc-mode~ and a minor
+~literate-calc-minor-mode~. The major mode does some basic syntax
 highlighting, while the minor mode only evaluates all calc statements.
 
 The minor mode works quite well with org-/markdown mode or other
 markup language major modes.
+
+There is also =M-x literate-calc-eval-line=, =M-x
+literate-calc-eval-buffer=, and =M-x literate-calc-clear-overlays=,
+which can all be called independently of the modes being active. They
+preserve a variable scope in order of evaluation, and clearing the
+overlays clears the scope as well.
 
 * Example
 
