@@ -86,21 +86,23 @@
                    t)
   (setq-local literate-calc--scope (list)))
 
+(defun literate-calc--add-bindings (bindings)
+  (unless (null bindings)
+    (setq-local literate-calc--scope
+                (cl-merge 'list
+                          literate-calc--scope
+                          (list bindings)
+                          (lambda (x y)
+                            (<= (length (car y))
+                                (length (car x))))))))
+
 (defun literate-calc-eval-line ()
   "Evaluates the calc expression on the current line."
   (interactive)
   (unless (string-empty-p (buffer-string))
-    (save-excursion
-      (let ((bindings (literate-calc--process-line (thing-at-point 'line)
-                                                   literate-calc--scope)))
-        (unless (null bindings)
-          (setq-local literate-calc--scope
-                      (cl-merge 'list
-                                literate-calc--scope
-                                (list bindings)
-                                (lambda (x y)
-                                  (<= (length (car y))
-                                      (length (car x)))))))))))
+    (let ((bindings (literate-calc--process-line (thing-at-point 'line)
+                                                 literate-calc--scope)))
+      (literate-calc--add-bindings bindings))))
 
 (defun literate-calc-eval-buffer ()
   "Evaluates all calc expressions in the current buffer in order."
@@ -114,14 +116,7 @@
         (while (<= line-number buffer-line-count)
           (let ((bindings (literate-calc--process-line (thing-at-point 'line)
                                                        literate-calc--scope)))
-            (unless (null bindings)
-              (setq literate-calc--scope
-                    (cl-merge 'list
-                              literate-calc--scope
-                              (list bindings)
-                              (lambda (x y)
-                                (<= (length (car y))
-                                    (length (car x))))))))
+            (literate-calc--add-bindings bindings))
           (setq line-number (1+ line-number))
           (forward-line 1))))))
 
