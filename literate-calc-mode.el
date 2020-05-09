@@ -41,6 +41,13 @@
 
 (defvar-local literate-calc--scope (list))
 
+(defconst literate-calc--expression (rx string-start
+                                        (opt (1+ (or letter
+                                                     blank)))
+                                        "="
+                                        (1+ (not (any ?=)))
+                                        string-end))
+
 (defun literate-calc--create-overlay (name result)
   (let* ((o (make-overlay (line-beginning-position)
                           (1+ (line-end-position)))))
@@ -53,28 +60,22 @@
                   'face 'font-lock-comment-face))))
 
 (defun literate-calc--process-line (line variable-scope)
-  (let ((literate-calc--expression (rx string-start
-                                      (opt (1+ (or letter
-                                                   blank)))
-                                      "="
-                                      (1+ (not (any ?=)))
-                                      string-end)))
-    (when (string-match literate-calc--expression line)
-      (let* ((whole-line (s-split "=" line))
-             (var-name (string-trim (car whole-line)))
-             (var-value (string-trim (cadr whole-line)))
-             (resolved-value (reduce (lambda (s kv)
-                                       (let ((k (car kv))
-                                             (v (cadr kv)))
-                                         (s-replace k v s)))
-                                     variable-scope
-                                     :initial-value var-value))
-             (var-result (if (string-empty-p resolved-value)
-                             "0"
-                           (format "%s" (calc-eval resolved-value)))))
-        (literate-calc--create-overlay var-name var-result)
-        (unless (string-empty-p var-name)
-          (list var-name var-result))))))
+  (when (string-match literate-calc--expression line)
+    (let* ((whole-line (s-split "=" line))
+           (var-name (string-trim (car whole-line)))
+           (var-value (string-trim (cadr whole-line)))
+           (resolved-value (reduce (lambda (s kv)
+                                     (let ((k (car kv))
+                                           (v (cadr kv)))
+                                       (s-replace k v s)))
+                                   variable-scope
+                                   :initial-value var-value))
+           (var-result (if (string-empty-p resolved-value)
+                           "0"
+                         (format "%s" (calc-eval resolved-value)))))
+      (literate-calc--create-overlay var-name var-result)
+      (unless (string-empty-p var-name)
+        (list var-name var-result)))))
 
 (defun literate-calc-clear-overlays ()
   "Removes all literate-calc-mode overlays in the current buffer."
@@ -124,8 +125,11 @@
           (setq line-number (1+ line-number))
           (forward-line 1))))))
 
-(defun literate-calc--eval-buffer (&rest _)
-  (literate-calc-eval-buffer))
+(defun literate-calc--eval-buffer (_ _ pre-change-length)
+  (when (or (not (equal 0 pre-change-length))
+            (string-match literate-calc--expression
+                          (thing-at-point 'line)))
+    (literate-calc-eval-buffer)))
 
 (setq literate-calc-font-lock-defaults
       (let ((identifier-regexp (rx line-start
@@ -137,20 +141,18 @@
 (define-derived-mode literate-calc-mode fundamental-mode
   "Literate-Calc"
   (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
+  (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
+  (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
   :after-hook
-  (progn
-    (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
-    (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
-    (literate-calc--eval-buffer)))
+  (literate-calc-eval-buffer))
 
 (define-minor-mode literate-calc-minor-mode
   "Evaluates calc expressions"
   :lighter "lit-calc"
+  (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
+  (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
   :after-hook
-  (progn
-    (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
-    (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
-    (literate-calc--eval-buffer)))
+  (literate-calc-eval-buffer))
 
 (provide 'literate-calc)
 
