@@ -110,6 +110,15 @@
     (add-hook 'after-change-functions 'literate-calc--eval nil t)
     (literate-calc--eval)))
 
+(define-minor-mode literate-calc-minor-mode
+  "Evaluates calc expressions"
+  :lighter "lit-calc"
+  :after-hook
+  (progn
+    (add-hook 'change-major-mode-hook 'remove-overlays nil t)
+    (add-hook 'after-change-functions 'literate-calc--eval nil t)
+    (literate-calc--eval)))
+
 (provide 'literate-calc)
 
 ;;; literate-calc.el ends here

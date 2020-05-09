@@ -2,6 +2,17 @@
 
 Literate programming for =M-x calc=. Also an editable ticker tape.
 
+* Use
+
+There is both a major ~literal-calc-mode~ and a minor
+~literal-calc-minor-mode~. The major mode does some basic syntax
+highlighting, while the minor mode only evaluates all calc statements.
+
+The minor mode works quite well with org-/markdown mode or other
+markup language major modes.
+
+* Example
+
 #+begin_src fundamental
 This is a literate calc file.
 
