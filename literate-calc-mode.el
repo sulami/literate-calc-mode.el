@@ -50,14 +50,19 @@
 
 (defun literate-calc--create-overlay (name result)
   (let* ((o (make-overlay (line-beginning-position)
-                          (1+ (line-end-position)))))
+                          (line-end-position)
+                          nil
+                          t
+                          t)))
     (overlay-put o 'literate-calc t)
+    (overlay-put o 'evaporate t)
     (overlay-put o 'after-string
                  (propertize
                   (if (string-empty-p name)
-                      (format "=> %s" result)
-                    (format "=> %s: %s" name result))
-                  'face 'font-lock-comment-face))))
+                      (format " => %s" result)
+                    (format " => %s: %s" name result))
+                  'face 'font-lock-comment-face
+                  'cursor t))))
 
 (defun literate-calc--process-line (line variable-scope)
   (when (string-match literate-calc--expression line)
@@ -122,11 +127,10 @@
 
 (defun literate-calc--eval-buffer (beg end pre-change-length)
   "Re-eval the buffer on deletions or if we are near a calc line."
-  (when (or (not (equal 0 pre-change-length))
-            (save-excursion
-              (goto-char beg)
-              (string-match literate-calc--expression
-                            (thing-at-point 'line))))
+  (when (save-excursion
+          (goto-char beg)
+          (string-match literate-calc--expression
+                        (thing-at-point 'line)))
     (literate-calc-eval-buffer)))
 
 (setq literate-calc-font-lock-defaults
