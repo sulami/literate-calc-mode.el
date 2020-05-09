@@ -94,8 +94,16 @@
           (setq line-number (1+ line-number))
           (forward-line 1))))))
 
+(setq literate-calc-font-lock-defaults
+      (let ((identifier-regexp (rx line-start
+                                   (group (1+ (and (or letter
+                                                       blank))))
+                                   "=")))
+        `((,identifier-regexp . (1 font-lock-variable-name-face)))))
+
 (define-derived-mode literate-calc-mode fundamental-mode
   "Literate-Calc"
+  (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
   :after-hook
   (progn
     (add-hook 'change-major-mode-hook 'remove-overlays nil t)
