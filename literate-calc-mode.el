@@ -55,8 +55,8 @@
     (overlay-put o 'after-string
                  (propertize
                   (if (string-empty-p name)
-                      (format "=> %s\n" result)
-                    (format "=> %s: %s\n" name result))
+                      (format "=> %s" result)
+                    (format "=> %s: %s" name result))
                   'face 'font-lock-comment-face))))
 
 (defun literate-calc--process-line (line variable-scope)
