@@ -41,6 +41,7 @@
 (defun literate-calc--create-overlay (name result)
   (let* ((o (make-overlay (line-beginning-position)
                           (1+ (line-end-position)))))
+    (overlay-put o 'literate-calc t)
     (overlay-put o 'after-string
                  (propertize
                   (if (string-empty-p name)
@@ -72,8 +73,16 @@
         (unless (string-empty-p var-name)
           (list var-name var-result))))))
 
+(defun literate-calc-clear-overlays ()
+  "Removes all literate-calc-mode overlays in the current buffer."
+  (interactive)
+  (remove-overlays (point-min)
+                   (point-max)
+                   'literate-calc
+                   t))
+
 (defun literate-calc--eval (&rest _)
-  (remove-overlays)
+  (literate-calc-clear-overlays)
   (unless (string-empty-p (buffer-string))
     (save-excursion
       (goto-char (point-min))
@@ -106,18 +115,18 @@
   (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
   :after-hook
   (progn
-    (add-hook 'change-major-mode-hook 'remove-overlays nil t)
     (add-hook 'after-change-functions 'literate-calc--eval nil t)
     (literate-calc--eval)))
+    (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
 
 (define-minor-mode literate-calc-minor-mode
   "Evaluates calc expressions"
   :lighter "lit-calc"
   :after-hook
   (progn
-    (add-hook 'change-major-mode-hook 'remove-overlays nil t)
     (add-hook 'after-change-functions 'literate-calc--eval nil t)
     (literate-calc--eval)))
+    (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
 
 (provide 'literate-calc)
 
