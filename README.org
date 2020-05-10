@@ -13,16 +13,19 @@ mode.
 
 There is both a major ~literate-calc-mode~ and a minor
 ~literate-calc-minor-mode~. The major mode does some basic syntax
-highlighting, while the minor mode only evaluates all calc statements.
+highlighting, while the minor mode only evaluates all calc statements
+while typing.
 
 The minor mode works quite well with org-/markdown mode or other
 markup language major modes.
 
-There is also =M-x literate-calc-eval-line=, =M-x
-literate-calc-eval-buffer=, and =M-x literate-calc-clear-overlays=,
-which can all be called independently of the modes being active. They
-preserve a variable scope in order of evaluation, and clearing the
-overlays clears the scope as well.
+There are also some functions which can be called without any mode
+being active:
+
+| =M-x literate-calc-eval-line=      | Evaluates a single line                        |
+| =M-x literate-calc-eval-buffer=    | Evaluates the whole buffer                     |
+| =M-x literate-calc-insert-results= | Evaluates the whole buffer and inserts results |
+| =M-x literate-calc-clear-overlays= | Removes all overlays and clears variables      |
 
 * Example
 

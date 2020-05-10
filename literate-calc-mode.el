@@ -49,6 +49,16 @@
                                         (1+ (not (any ?=)))
                                         string-end))
 
+(defun literate-calc--format-result (name result)
+  (if (string-empty-p name)
+      (format " => %s" result)
+    (format " => %s: %s" name result)))
+
+(defun literate-calc--insert-result (name result)
+  (save-excursion
+    (end-of-line)
+    (insert (literate-calc--format-result name result))))
+
 (defun literate-calc--create-overlay (name result)
   (let* ((o (make-overlay (line-beginning-position)
                           (line-end-position)
@@ -59,13 +69,11 @@
     (overlay-put o 'evaporate t)
     (overlay-put o 'after-string
                  (propertize
-                  (if (string-empty-p name)
-                      (format " => %s" result)
-                    (format " => %s: %s" name result))
+                  (literate-calc--format-result name result)
                   'face 'font-lock-comment-face
                   'cursor t))))
 
-(defun literate-calc--process-line (line variable-scope)
+(defun literate-calc--process-line (line variable-scope &optional insert)
   (when (string-match literate-calc--expression line)
     (let* ((whole-line (s-split "=" line))
            (var-name (string-trim (car whole-line)))
@@ -79,7 +87,9 @@
            (var-result (if (string-empty-p resolved-value)
                            "0"
                          (format "%s" (calc-eval resolved-value)))))
-      (literate-calc--create-overlay var-name var-result)
+      (if insert
+          (literate-calc--insert-result var-name var-result)
+          (literate-calc--create-overlay var-name var-result))
       (unless (string-empty-p var-name)
         (list var-name var-result)))))
 
@@ -122,6 +132,22 @@
         (while (<= line-number buffer-line-count)
           (let ((bindings (literate-calc--process-line (thing-at-point 'line)
                                                        literate-calc--scope)))
+            (literate-calc--add-bindings bindings))
+          (setq line-number (1+ line-number))
+          (forward-line 1))))))
+
+(defun literate-calc-insert-results ()
+  "Inserts results into buffer instead of creating overlays."
+  (interactive)
+  (unless (string-empty-p (buffer-string))
+    (save-excursion
+      (goto-char (point-min))
+      (let ((buffer-line-count (count-lines (point-min) (point-max)))
+            (line-number 1))
+        (while (<= line-number buffer-line-count)
+          (let ((bindings (literate-calc--process-line (thing-at-point 'line)
+                                                       literate-calc--scope
+                                                       t)))
             (literate-calc--add-bindings bindings))
           (setq line-number (1+ line-number))
           (forward-line 1))))))
