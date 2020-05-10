@@ -4,7 +4,7 @@
 ;; Maintainer: Robin Schroer
 ;; Version: 0.1
 ;; Homepage: https://github.com/sulami/literate-calc-mode.el
-;; Package-Requires: ((emacs "25") (s "1.12.0"))
+;; Package-Requires: ((emacs "25.1") (s "1.12.0"))
 ;; Keywords: calc, languages, tools
 
 
@@ -32,6 +32,7 @@
 
 (require 'calc)
 (require 'cl-lib)
+(require 'cl-seq)
 (require 's)
 (require 'thingatpt)
 
@@ -91,12 +92,12 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
     (let* ((whole-line (s-split "=" line))
            (var-name (string-trim (car whole-line)))
            (var-value (string-trim (cadr whole-line)))
-           (resolved-value (reduce (lambda (s kv)
-                                     (let ((k (car kv))
-                                           (v (cadr kv)))
-                                       (s-replace k v s)))
-                                   variable-scope
-                                   :initial-value var-value))
+           (resolved-value (cl-reduce (lambda (s kv)
+                                        (let ((k (car kv))
+                                              (v (cadr kv)))
+                                          (s-replace k v s)))
+                                      variable-scope
+                                      :initial-value var-value))
            (var-result (if (string-empty-p resolved-value)
                            "0"
                          (format "%s" (calc-eval resolved-value)))))
