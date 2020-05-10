@@ -35,8 +35,8 @@
 (require 's)
 (require 'thingatpt)
 
+;; FIXME eval-line doesn't clear the old overlay on that line
 ;; TODO semantic highlighting
-;; TODO settings
 ;; TODO org-babel-execute
 ;; TODO org export
 
@@ -50,16 +50,21 @@
                                         string-end))
 
 (defun literate-calc--format-result (name result)
+  "Return the output format for RESULT with the optional NAME.
+
+NAME should be an empty string if RESULT is not bound."
   (if (string-empty-p name)
       (format " => %s" result)
     (format " => %s: %s" name result)))
 
 (defun literate-calc--insert-result (name result)
+  "Insert NAME & RESULT at the end of the current line."
   (save-excursion
     (end-of-line)
     (insert (literate-calc--format-result name result))))
 
 (defun literate-calc--create-overlay (name result)
+  "Create an overlay for NAME & RESULT on the current line."
   (let* ((o (make-overlay (line-beginning-position)
                           (line-end-position)
                           nil
@@ -74,6 +79,14 @@
                   'cursor t))))
 
 (defun literate-calc--process-line (line variable-scope &optional insert)
+  "Parse LINE using VARIABLE-SCOPE and maybe add a result.
+
+If INSERT is true, insert the result in the buffer, otherwise create
+an overlay.
+
+Returns 'nil' if the line is not a calc expression.
+Returns 'nil' if the result is not bound to a name.
+Returns a list of (NAME RESULT) if the result is bound to a name."
   (when (string-match literate-calc--expression line)
     (let* ((whole-line (s-split "=" line))
            (var-name (string-trim (car whole-line)))
@@ -94,7 +107,7 @@
         (list var-name var-result)))))
 
 (defun literate-calc-clear-overlays ()
-  "Removes all literate-calc-mode overlays in the current buffer."
+  "Remove all literate-calc-mode overlays in the current buffer."
   (interactive)
   (remove-overlays (point-min)
                    (point-max)
@@ -102,26 +115,30 @@
                    t)
   (setq-local literate-calc--scope (list)))
 
-(defun literate-calc--add-bindings (bindings)
-  (unless (null bindings)
+(defun literate-calc--add-binding (binding)
+  "Add BINDING to the buffer-local variable scope.
+
+Bindings are sorted by length descending to prevent substring
+shadowing."
+  (unless (null binding)
     (setq-local literate-calc--scope
                 (cl-merge 'list
                           literate-calc--scope
-                          (list bindings)
+                          (list binding)
                           (lambda (x y)
                             (<= (length (car y))
                                 (length (car x))))))))
 
 (defun literate-calc-eval-line ()
-  "Evaluates the calc expression on the current line."
+  "Evaluate the calc expression on the current line."
   (interactive)
   (unless (string-empty-p (buffer-string))
-    (let ((bindings (literate-calc--process-line (thing-at-point 'line)
-                                                 literate-calc--scope)))
-      (literate-calc--add-bindings bindings))))
+    (let ((binding (literate-calc--process-line (thing-at-point 'line)
+                                                literate-calc--scope)))
+      (literate-calc--add-binding binding))))
 
 (defun literate-calc-eval-buffer ()
-  "Evaluates all calc expressions in the current buffer in order."
+  "Evaluate all calc expressions in the current buffer in order."
   (interactive)
   (literate-calc-clear-overlays)
   (unless (string-empty-p (buffer-string))
@@ -130,14 +147,14 @@
       (let ((buffer-line-count (count-lines (point-min) (point-max)))
             (line-number 1))
         (while (<= line-number buffer-line-count)
-          (let ((bindings (literate-calc--process-line (thing-at-point 'line)
-                                                       literate-calc--scope)))
-            (literate-calc--add-bindings bindings))
+          (let ((binding (literate-calc--process-line (thing-at-point 'line)
+                                                      literate-calc--scope)))
+            (literate-calc--add-binding binding))
           (setq line-number (1+ line-number))
           (forward-line 1))))))
 
 (defun literate-calc-insert-results ()
-  "Inserts results into buffer instead of creating overlays."
+  "Insert results into buffer instead of creating overlays."
   (interactive)
   (unless (string-empty-p (buffer-string))
     (save-excursion
@@ -145,15 +162,18 @@
       (let ((buffer-line-count (count-lines (point-min) (point-max)))
             (line-number 1))
         (while (<= line-number buffer-line-count)
-          (let ((bindings (literate-calc--process-line (thing-at-point 'line)
-                                                       literate-calc--scope
-                                                       t)))
-            (literate-calc--add-bindings bindings))
+          (let ((binding (literate-calc--process-line (thing-at-point 'line)
+                                                      literate-calc--scope
+                                                      t)))
+            (literate-calc--add-binding binding))
           (setq line-number (1+ line-number))
           (forward-line 1))))))
 
 (defun literate-calc--eval-buffer (beg end pre-change-length)
-  "Re-eval the buffer on deletions or if we are near a calc line."
+  "Re-eval the buffer on deletions or if we are near a calc line.
+
+BEG, END, and PRE-CHANGE-LENGTH are what we get by this being a
+handler for `after-change-functions'."
   (when (or (not (equal 0 pre-change-length))
             (save-excursion
               (goto-char beg)
@@ -162,6 +182,7 @@
     (literate-calc-eval-buffer)))
 
 (defun literate-calc--exit ()
+  "Clean up hooks & overlays."
   (remove-hook 'after-change-functions 'literate-calc--eval-buffer t)
   (literate-calc-clear-overlays))
 
