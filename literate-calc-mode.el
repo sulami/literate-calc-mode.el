@@ -172,7 +172,7 @@ shadowing."
           (setq line-number (1+ line-number))
           (forward-line 1))))))
 
-(defun literate-calc--eval-buffer (beg end pre-change-length)
+(defun literate-calc--eval-buffer (beg _end pre-change-length)
   "Re-eval the buffer on deletions or if we are near a calc line.
 
 BEG, END, and PRE-CHANGE-LENGTH are what we get by this being a
@@ -189,6 +189,7 @@ handler for `after-change-functions'."
   (remove-hook 'after-change-functions #'literate-calc--eval-buffer t)
   (literate-calc-clear-overlays))
 
+(defvar literate-calc-font-lock-defaults)
 (setq literate-calc-font-lock-defaults
       (let ((identifier-regexp (rx line-start
                                    (group (1+ (and (or letter
