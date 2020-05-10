@@ -184,7 +184,7 @@ handler for `after-change-functions'."
 
 (defun literate-calc--exit ()
   "Clean up hooks & overlays."
-  (remove-hook 'after-change-functions 'literate-calc--eval-buffer t)
+  (remove-hook 'after-change-functions #'literate-calc--eval-buffer t)
   (literate-calc-clear-overlays))
 
 (setq literate-calc-font-lock-defaults
@@ -197,8 +197,8 @@ handler for `after-change-functions'."
 (define-derived-mode literate-calc-mode fundamental-mode
   "Literate-Calc"
   (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
-  (add-hook 'change-major-mode-hook 'literate-calc--exit nil t)
-  (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
+  (add-hook 'change-major-mode-hook #'literate-calc--exit nil t)
+  (add-hook 'after-change-functions #'literate-calc--eval-buffer nil t)
   (literate-calc-eval-buffer))
 
 (define-minor-mode literate-calc-minor-mode
@@ -207,7 +207,7 @@ handler for `after-change-functions'."
   (message "%s" literate-calc-minor-mode)
   (if literate-calc-minor-mode
       (progn
-        (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
+        (add-hook 'after-change-functions #'literate-calc--eval-buffer nil t)
         (literate-calc-eval-buffer))
     (literate-calc--exit)))
 
