@@ -37,7 +37,6 @@
 (require 'subr-x)
 (require 'thingatpt)
 
-;; FIXME eval-line doesn't clear the old overlay on that line
 ;; TODO semantic highlighting
 ;; TODO org-babel-execute
 ;; TODO org export
@@ -137,6 +136,10 @@ shadowing."
   "Evaluate the calc expression on the current line."
   (interactive)
   (unless (string-empty-p (buffer-string))
+    (remove-overlays (line-beginning-position)
+                     (line-end-position)
+                     'literate-calc
+                     t)
     (let ((binding (literate-calc--process-line (thing-at-point 'line)
                                                 literate-calc--scope)))
       (literate-calc--add-binding binding))))
