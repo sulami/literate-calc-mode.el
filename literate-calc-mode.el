@@ -134,6 +134,10 @@
                             (thing-at-point 'line))))
     (literate-calc-eval-buffer)))
 
+(defun literate-calc--exit ()
+  (remove-hook 'after-change-functions 'literate-calc--eval-buffer t)
+  (literate-calc-clear-overlays))
+
 (setq literate-calc-font-lock-defaults
       (let ((identifier-regexp (rx line-start
                                    (group (1+ (and (or letter
@@ -144,18 +148,19 @@
 (define-derived-mode literate-calc-mode fundamental-mode
   "Literate-Calc"
   (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
-  (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
+  (add-hook 'change-major-mode-hook 'literate-calc--exit nil t)
   (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
-  :after-hook
   (literate-calc-eval-buffer))
 
 (define-minor-mode literate-calc-minor-mode
   "Evaluates calc expressions"
   :lighter "lit-calc"
-  (add-hook 'change-major-mode-hook 'literate-calc-clear-overlays nil t)
-  (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
-  :after-hook
-  (literate-calc-eval-buffer))
+  (message "%s" literate-calc-minor-mode)
+  (if literate-calc-minor-mode
+      (progn
+        (add-hook 'after-change-functions 'literate-calc--eval-buffer nil t)
+        (literate-calc-eval-buffer))
+    (literate-calc--exit)))
 
 (provide 'literate-calc)
 
