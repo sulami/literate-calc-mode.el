@@ -211,6 +211,6 @@ handler for `after-change-functions'."
         (literate-calc-eval-buffer))
     (literate-calc--exit)))
 
-(provide 'literate-calc)
+(provide 'literate-calc-mode)
 
 ;;; literate-calc-mode.el ends here
