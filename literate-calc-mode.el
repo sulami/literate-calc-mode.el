@@ -105,6 +105,7 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
       (unless (string-empty-p var-name)
         (list var-name var-result)))))
 
+;;;###autoload
 (defun literate-calc-clear-overlays ()
   "Remove all literate-calc-mode overlays in the current buffer."
   (interactive)
@@ -128,6 +129,7 @@ shadowing."
                             (<= (length (car y))
                                 (length (car x))))))))
 
+;;;###autoload
 (defun literate-calc-eval-line ()
   "Evaluate the calc expression on the current line."
   (interactive)
@@ -136,6 +138,7 @@ shadowing."
                                                 literate-calc--scope)))
       (literate-calc--add-binding binding))))
 
+;;;###autoload
 (defun literate-calc-eval-buffer ()
   "Evaluate all calc expressions in the current buffer in order."
   (interactive)
@@ -152,6 +155,7 @@ shadowing."
           (setq line-number (1+ line-number))
           (forward-line 1))))))
 
+;;;###autoload
 (defun literate-calc-insert-results ()
   "Insert results into buffer instead of creating overlays."
   (interactive)
@@ -192,6 +196,7 @@ handler for `after-change-functions'."
                                    "=")))
         `((,identifier-regexp . (1 font-lock-variable-name-face)))))
 
+;;;###autoload
 (define-derived-mode literate-calc-mode fundamental-mode
   "Literate-Calc"
   (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
@@ -199,6 +204,7 @@ handler for `after-change-functions'."
   (add-hook 'after-change-functions #'literate-calc--eval-buffer nil t)
   (literate-calc-eval-buffer))
 
+;;;###autoload
 (define-minor-mode literate-calc-minor-mode
   "Evaluates calc expressions"
   :lighter "lit-calc"
