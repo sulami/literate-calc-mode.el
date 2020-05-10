@@ -1,10 +1,10 @@
-;;; literate-calc-mode.el --- calc, but as a document -*- lexical-binding: t -*-
+;;; literate-calc-mode.el --- Inline results from calc -*- lexical-binding: t -*-
 
 ;; Author: Robin Schroer
 ;; Maintainer: Robin Schroer
 ;; Version: 0.1
 ;; Homepage: https://github.com/sulami/literate-calc-mode.el
-;; Package-Requires: ((emacs "25.1") (s "1.12.0"))
+;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: calc, languages, tools
 
 
@@ -32,8 +32,6 @@
 
 (require 'calc)
 (require 'cl-lib)
-(require 'cl-seq)
-(require 's)
 (require 'thingatpt)
 
 ;; FIXME eval-line doesn't clear the old overlay on that line
