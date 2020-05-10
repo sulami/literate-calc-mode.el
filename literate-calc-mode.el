@@ -4,7 +4,7 @@
 ;; Maintainer: Robin Schroer
 ;; Version: 0.1
 ;; Homepage: https://github.com/sulami/literate-calc-mode.el
-;; Package-Requires: ((emacs "25.1"))
+;; Package-Requires: ((emacs "25.1") (s "1.12.0"))
 ;; Keywords: calc, languages, tools
 
 
@@ -32,6 +32,9 @@
 
 (require 'calc)
 (require 'cl-lib)
+(require 'rx)
+(require 's)
+(require 'subr-x)
 (require 'thingatpt)
 
 ;; FIXME eval-line doesn't clear the old overlay on that line
