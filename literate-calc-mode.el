@@ -4,6 +4,7 @@
 ;; Maintainer: Robin Schroer
 ;; Version: 0.1
 ;; Homepage: https://github.com/sulami/literate-calc-mode.el
+;; Package-Requires: ((emacs "25") (s "1.12.0"))
 ;; Keywords: calc, languages, tools
 
 
@@ -30,7 +31,7 @@
 ;;; Code:
 
 (require 'calc)
-(require 'cl)
+(require 'cl-lib)
 (require 's)
 (require 'thingatpt)
 
