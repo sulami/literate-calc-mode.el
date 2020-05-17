@@ -21,7 +21,7 @@
 ;; GNU General Public License for more details.
 
 ;; For a full copy of the GNU General Public License
-;; see <http://www.gnu.org/licenses/>.
+;; see <https://www.gnu.org/licenses/>.
 
 
 ;;; Commentary:
@@ -122,7 +122,7 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
 
 Bindings are sorted by length descending to prevent substring
 shadowing."
-  (unless (null binding)
+  (when binding
     (setq-local literate-calc--scope
                 (cl-merge 'list
                           literate-calc--scope
