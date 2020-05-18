@@ -1,5 +1,7 @@
 #+TITLE: Literate Calc Mode
 
+[[https://melpa.org/#/literate-calc-mode][file:https://melpa.org/packages/literate-calc-mode-badge.svg]]
+
 Literate programming for =M-x calc=.
 
 Displays inline results for calculations, supports variables and
@@ -8,6 +10,34 @@ mode.
 
 #+caption: Demo
 [[file:./scrot.png]]
+
+* Installing
+
+Simply grab it from [[https://melpa.org/][MELPA]].
+
+** [[https://github.com/jwiegley/use-package][use-package]]
+
+#+begin_src emacs-lisp
+(use-package literate-calc-mode
+  :ensure t)
+#+end_src
+
+** [[https://github.com/raxod502/straight.el][straight.el]]
+
+#+begin_src emacs-lisp
+(straight-use-package 'literate-calc-mode)
+#+end_src
+
+** package.el
+
+[[https://melpa.org/#/getting-started][Ensure you have MELPA available.]]
+
+=M-x package-install=, select =literate-calc-mode=.
+
+** Manual
+
+Just fetch [[file:literate-calc-mode.el][literate-calc-mode.el]], save it somewhere and load it into
+Emacs.
 
 * Use
 
