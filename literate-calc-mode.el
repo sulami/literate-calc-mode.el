@@ -184,6 +184,7 @@ shadowing."
 BEG, END, and PRE-CHANGE-LENGTH are what we get by this being a
 handler for `after-change-functions'."
   (when (or (not (equal 0 pre-change-length))
+            (overlays-in (line-beginning-position) (line-end-position))
             (save-excursion
               (goto-char beg)
               (string-match literate-calc--expression
