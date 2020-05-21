@@ -95,7 +95,7 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
            (resolved-value (cl-reduce (lambda (s kv)
                                         (let ((k (car kv))
                                               (v (cadr kv)))
-                                          (s-replace k v s)))
+                                          (s-replace k (format "(%s)" v) s)))
                                       variable-scope
                                       :initial-value var-value))
            (var-result (if (string-empty-p resolved-value)
