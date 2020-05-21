@@ -2,7 +2,8 @@
 
 [[https://melpa.org/#/literate-calc-mode][file:https://melpa.org/packages/literate-calc-mode-badge.svg]]
 
-Literate programming for =M-x calc=.
+Literate programming for =M-x calc=. There is an [[http://sulami.github.io/posts/literate-calc-mode/][announcement blog
+post]].
 
 Displays inline results for calculations, supports variables and
 updates as you type (if you want). Also works in your favourite markup
@@ -57,7 +58,28 @@ being active:
 | =M-x literate-calc-insert-results= | Evaluates the whole buffer and inserts results |
 | =M-x literate-calc-clear-overlays= | Removes all overlays and clears variables      |
 
-* Example
+** Using Units
+
+You can simply append units to your values like so:
+
+#+begin_src fundamental
+My weight = 78kg => My weight: 78 kg
+#+end_src
+
+Unit conversion (and other complex functions) can be used by invoking
+the matching [[https://www.gnu.org/software/emacs/manual/html_node/calc/Function-Index.html][Algebraic Function]].
+
+#+begin_src fundamental
+= usimplify(1m + 3mm) => 1.003 m
+#+end_src
+
+You can also use unknown mathematical symbols:
+
+#+begin_src fundamental
+= x*2 + x-3 => 3 x - 3
+#+end_src
+
+* Full Example
 
 #+begin_src fundamental
 This is a literate calc file.
