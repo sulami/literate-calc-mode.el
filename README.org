@@ -103,3 +103,30 @@ Annual Savings = 12 * (Monthly Income - Monthly Expenses) => Annual Savings: 600
 All values are recalculated on every update in a spreadsheet-like
 fashion.
 #+end_src
+* Roadmap
+
+There are some additional features I'm currently thinking about.
+
+** Semantic Highlighting
+
+One of the original inspirations was [[http://tydligapp.com/][Tydlig]], which does similar
+things, but also has semantic highlighting. That means, variables are
+highlighted in different colours, but always the same one for a given
+variable, so that you can see where it's used at a glance.
+
+I might steal some code from [[https://github.com/Fanael/rainbow-identifiers][rainbow-identifiers]], which is one of the
+[[https://github.com/ankurdave/color-identifiers-mode][shorter existing implementations]] around, and adapt that to our needs.
+
+** Export/Import
+
+Currently there is the option to "bake in" results by adding them to
+the buffer contents. If there is genuine need for exporting
+calculations with results (so anyone can read them), and then maybe
+also importing them again, there needs to be more tooling around this.
+
+I've also been toying with the idea of integrating with org-babel, so
+that you could have babel ~literate-calc~ blocks which evaluate and
+export properly.
+
+If you have opinions on this, please feel free to open an issue or
+send me an email so I can figure out what the best way to do this is.
