@@ -88,7 +88,7 @@ an overlay.
 Returns 'nil' if the line is not a calc expression.
 Returns 'nil' if the result is not bound to a name.
 Returns a list of (NAME RESULT) if the result is bound to a name."
-  (when (string-match literate-calc--expression line)
+  (when (string-match-p literate-calc--expression line)
     (let* ((whole-line (s-split "=" line))
            (var-name (string-trim (car whole-line)))
            (var-value (string-trim (cadr whole-line)))
@@ -187,8 +187,8 @@ handler for `after-change-functions'."
             (overlays-in (line-beginning-position) (line-end-position))
             (save-excursion
               (goto-char beg)
-              (string-match literate-calc--expression
-                            (thing-at-point 'line))))
+              (string-match-p literate-calc--expression
+                              (thing-at-point 'line))))
     (literate-calc-eval-buffer)))
 
 (defun literate-calc--exit ()
