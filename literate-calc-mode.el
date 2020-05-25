@@ -88,24 +88,25 @@ an overlay.
 Returns 'nil' if the line is not a calc expression.
 Returns 'nil' if the result is not bound to a name.
 Returns a list of (NAME RESULT) if the result is bound to a name."
-  (when (string-match literate-calc--expression line)
-    (let* ((whole-line (s-split "=" line))
-           (var-name (string-trim (car whole-line)))
-           (var-value (string-trim (cadr whole-line)))
-           (resolved-value (cl-reduce (lambda (s kv)
-                                        (let ((k (car kv))
-                                              (v (cadr kv)))
-                                          (s-replace k (format "(%s)" v) s)))
-                                      variable-scope
-                                      :initial-value var-value))
-           (var-result (if (string-empty-p resolved-value)
-                           "0"
-                         (format "%s" (calc-eval resolved-value)))))
-      (if insert
-          (literate-calc--insert-result var-name var-result)
-          (literate-calc--create-overlay var-name var-result))
-      (unless (string-empty-p var-name)
-        (list var-name var-result)))))
+  (save-match-data
+    (when (string-match-p literate-calc--expression line)
+      (let* ((whole-line (s-split "=" line))
+             (var-name (string-trim (car whole-line)))
+             (var-value (string-trim (cadr whole-line)))
+             (resolved-value (cl-reduce (lambda (s kv)
+                                          (let ((k (car kv))
+                                                (v (cadr kv)))
+                                            (s-replace k (format "(%s)" v) s)))
+                                        variable-scope
+                                        :initial-value var-value))
+             (var-result (if (string-empty-p resolved-value)
+                             "0"
+                           (format "%s" (calc-eval resolved-value)))))
+        (if insert
+            (literate-calc--insert-result var-name var-result)
+            (literate-calc--create-overlay var-name var-result))
+        (unless (string-empty-p var-name)
+          (list var-name var-result))))))
 
 ;;;###autoload
 (defun literate-calc-clear-overlays ()
@@ -187,8 +188,8 @@ handler for `after-change-functions'."
             (overlays-in (line-beginning-position) (line-end-position))
             (save-excursion
               (goto-char beg)
-              (string-match literate-calc--expression
-                            (thing-at-point 'line))))
+              (string-match-p literate-calc--expression
+                              (thing-at-point 'line))))
     (literate-calc-eval-buffer)))
 
 (defun literate-calc--exit ()
