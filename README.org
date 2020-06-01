@@ -63,7 +63,7 @@ being active:
 You can simply append units to your values like so:
 
 #+begin_src fundamental
-My weight = 78kg => My weight: 78 kg
+Flour = 500g => Flour: 500 g
 #+end_src
 
 Unit conversion (and other complex functions) can be used by invoking
