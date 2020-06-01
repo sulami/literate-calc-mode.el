@@ -191,13 +191,14 @@ shadowing."
 
 BEG, END, and PRE-CHANGE-LENGTH are what we get by this being a
 handler for `after-change-functions'."
-  (when (or (not (equal 0 pre-change-length))
-            (overlays-in (line-beginning-position) (line-end-position))
-            (save-excursion
-              (goto-char beg)
-              (string-match-p literate-calc--expression
-                              (thing-at-point 'line))))
-    (literate-calc-eval-buffer)))
+  (save-match-data
+    (when (or (not (equal 0 pre-change-length))
+              (overlays-in (line-beginning-position) (line-end-position))
+              (save-excursion
+                (goto-char beg)
+                (string-match-p literate-calc--expression
+                                (thing-at-point 'line))))
+      (literate-calc-eval-buffer))))
 
 (defun literate-calc--setup-hooks ()
   "Set up after-edit hooks & run first evaluation."
