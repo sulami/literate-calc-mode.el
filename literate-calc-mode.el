@@ -167,17 +167,24 @@ shadowing."
   "Insert results into buffer instead of creating overlays."
   (interactive)
   (unless (string-empty-p (buffer-string))
-    (save-excursion
-      (goto-char (point-min))
-      (let ((buffer-line-count (count-lines (point-min) (point-max)))
-            (line-number 1))
-        (while (<= line-number buffer-line-count)
-          (let ((binding (literate-calc--process-line (thing-at-point 'line)
-                                                      literate-calc--scope
-                                                      t)))
-            (literate-calc--add-binding binding))
-          (setq line-number (1+ line-number))
-          (forward-line 1))))))
+    (let ((hooks-active (or (equal major-mode #'literate-calc-mode)
+                            literate-calc-minor-mode)))
+      (when hooks-active
+        ;; Temporarily disable the edit hooks while we edit the buffer.
+        (literate-calc--exit))
+      (save-excursion
+        (goto-char (point-min))
+        (let ((buffer-line-count (count-lines (point-min) (point-max)))
+              (line-number 1))
+          (while (<= line-number buffer-line-count)
+            (let ((binding (literate-calc--process-line (thing-at-point 'line)
+                                                        literate-calc--scope
+                                                        t)))
+              (literate-calc--add-binding binding))
+            (setq line-number (1+ line-number))
+            (forward-line 1))))
+      (when hooks-active
+        (literate-calc--setup-hooks)))))
 
 (defun literate-calc--eval-buffer (beg _end pre-change-length)
   "Re-eval the buffer on deletions or if we are near a calc line.
@@ -191,6 +198,11 @@ handler for `after-change-functions'."
               (string-match-p literate-calc--expression
                               (thing-at-point 'line))))
     (literate-calc-eval-buffer)))
+
+(defun literate-calc--setup-hooks ()
+  "Set up after-edit hooks & run first evaluation."
+  (add-hook 'after-change-functions #'literate-calc--eval-buffer nil t)
+  (literate-calc-eval-buffer))
 
 (defun literate-calc--exit ()
   "Clean up hooks & overlays."
@@ -209,9 +221,8 @@ handler for `after-change-functions'."
 (define-derived-mode literate-calc-mode fundamental-mode
   "Literate-Calc"
   (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
-  (add-hook 'change-major-mode-hook #'literate-calc--exit nil t)
-  (add-hook 'after-change-functions #'literate-calc--eval-buffer nil t)
-  (literate-calc-eval-buffer))
+  (literate-calc--setup-hooks)
+  (add-hook 'change-major-mode-hook #'literate-calc--exit nil t))
 
 ;;;###autoload
 (define-minor-mode literate-calc-minor-mode
@@ -219,9 +230,7 @@ handler for `after-change-functions'."
   :lighter "lit-calc"
   (message "%s" literate-calc-minor-mode)
   (if literate-calc-minor-mode
-      (progn
-        (add-hook 'after-change-functions #'literate-calc--eval-buffer nil t)
-        (literate-calc-eval-buffer))
+      (literate-calc--setup-hooks)
     (literate-calc--exit)))
 
 (provide 'literate-calc-mode)
