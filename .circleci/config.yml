@@ -1,0 +1,46 @@
+version: 2.1
+
+executors:
+  emacs-25:
+    docker:
+      - image: silex/emacs:25-alpine
+  emacs-26:
+    docker:
+      - image: silex/emacs:26-alpine
+  emacs-27:
+    docker:
+      - image: silex/emacs:27-alpine
+
+jobs:
+  test:
+    parameters:
+      executor:
+        type: executor
+    executor: << parameters.executor >>
+    steps:
+      - checkout
+      - run:
+          name: Install external dependencies
+          command: |
+            apk update
+            apk add git
+      - run:
+          name: Run tests
+          command: |
+            emacs -batch \
+              -l ert \
+              -l test/deps.el \
+              -l literate-calc-mode.el \
+              -l test/literate-calc-mode-test.el \
+              -f ert-run-tests-batch-and-exit
+
+workflows:
+  test:
+    jobs:
+      - test:
+          matrix:
+            parameters:
+              executor:
+                - emacs-25
+                - emacs-26
+                - emacs-27
