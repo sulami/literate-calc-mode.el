@@ -26,12 +26,13 @@
 
 ;;; Commentary:
 
-;; Major mode for literate calculations.
+;; Major/minor mode for literate calculations.
 
 ;;; Code:
 
 (require 'calc)
 (require 'cl-lib)
+(require 'org)
 (require 'rx)
 (require 's)
 (require 'subr-x)
@@ -42,20 +43,21 @@
 ;; TODO org export
 
 (defgroup literate-calc-mode nil
-  "Display calc results in buffers via overlays."
+  "Display inline results from calc."
   :group 'editing
   :prefix "literate-calc-mode-")
 
-(defcustom literate-calc-mode-inhibit-line-functions '(literate-calc-mode--default-inhibit-line-function)
+(defcustom literate-calc-mode-inhibit-line-functions '(literate-calc-mode-inhibit-in-src-blocks)
   "Hook functions called for each line to test whether to inhibit calculation.
 
 If any of these functions returns non-nil, overlays will not be displayed."
   :group 'literate-calc-mode
   :type 'hook)
 
-(defun literate-calc-mode--default-inhibit-line-function ()
-  ;; TODO: default implementation
-  )
+(defun literate-calc-mode-inhibit-in-src-blocks ()
+  "Return non-nil if point is in a source block."
+  (memq (org-element-type (org-element-context))
+        '(inline-src-block src-block)))
 
 (defvar-local literate-calc-minor-mode nil)
 (defvar-local literate-calc--scope (list))
