@@ -206,10 +206,11 @@ shadowing."
        (let ((buffer-line-count (count-lines (point-min) (point-max)))
              (line-number 1))
          (while (<= line-number buffer-line-count)
-           (let ((binding (literate-calc--process-line (thing-at-point 'line)
-                                                       literate-calc--scope
-                                                       t)))
-             (literate-calc--add-binding binding))
+           (unless (run-hook-with-args-until-success 'literate-calc-mode-inhibit-line-functions)
+             (let ((binding (literate-calc--process-line (thing-at-point 'line)
+                                                         literate-calc--scope
+                                                         t)))
+               (literate-calc--add-binding binding)))
            (setq line-number (1+ line-number))
            (forward-line 1)))))))
 
