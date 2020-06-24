@@ -40,6 +40,15 @@ Simply grab it from [[https://melpa.org/][MELPA]].
 Just fetch [[file:literate-calc-mode.el][literate-calc-mode.el]], save it somewhere and load it into
 Emacs.
 
+* Configuration
+
+There is a =M-x customize= group named after the mode which contains
+the following options:
+
+| ~literate-calc-mode-inhibit-in-src-blocks~ | Hook functions called for each line to test whether to inhibit calculation |
+
+Of course you can also just ~setq~ the options directly.
+
 * Use
 
 There is both a major ~literate-calc-mode~ and a minor
