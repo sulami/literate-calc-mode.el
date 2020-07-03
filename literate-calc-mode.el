@@ -41,6 +41,7 @@
 ;; TODO org-babel-execute
 ;; TODO org export
 
+(defvar-local literate-calc-minor-mode nil)
 (defvar-local literate-calc--scope (list))
 
 (defconst literate-calc--expression (rx string-start
