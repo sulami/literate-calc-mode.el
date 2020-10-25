@@ -79,6 +79,15 @@
                              third-line)
                      (buffer-string))))))
 
+(ert-deftest literate-calc-mode/remove-results-array-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((input "Foo Bar = [1 2 3]"))
+      (insert input)
+      (literate-calc-insert-results)
+      (literate-calc-remove-results nil nil)
+      (should (equal input (buffer-string))))))
+
 (ert-deftest literate-calc-mode/remove-results-in-region-test ()
   (with-temp-buffer
     (literate-calc-mode)

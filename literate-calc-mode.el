@@ -75,7 +75,7 @@ If any of these functions returns non-nil, overlays will not be displayed."
 (defconst literate-calc--result
   (rx " => "
       (opt (+ (any alphanumeric blank "-_")) ": ")
-      (+ (any digit blank "._"))
+      (+ (any digit blank "._[,]"))
       line-end))
 
 (defmacro literate-calc--without-hooks (&rest body)

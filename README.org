@@ -139,6 +139,13 @@ Annual Savings = 12 * (Monthly Income - Monthly Expenses) => Annual Savings: 600
 
 All values are recalculated on every update in a spreadsheet-like
 fashion.
+
+Calc also has a lot of advanced features, like arrays:
+
+Numbers = [1 2 3] => Numbers: [1, 2, 3]
+
+= 3 Numbers => [3, 6, 9]
+
 #+end_src
 
 * Roadmap
