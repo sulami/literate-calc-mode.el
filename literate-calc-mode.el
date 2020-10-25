@@ -56,8 +56,9 @@ If any of these functions returns non-nil, overlays will not be displayed."
 
 (defun literate-calc-mode-inhibit-in-src-blocks ()
   "Return non-nil if point is in a source block."
-  (memq (org-element-type (org-element-context))
-        '(inline-src-block src-block)))
+  (and (derived-mode-p #'org-mode)
+       (memq (org-element-type (org-element-context))
+             '(inline-src-block src-block))))
 
 (defvar-local literate-calc-minor-mode nil)
 (defvar-local literate-calc--scope (list))
