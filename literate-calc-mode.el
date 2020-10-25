@@ -248,7 +248,7 @@ shadowing."
          (goto-char start)
          (while (re-search-forward literate-calc--result
                                    (save-excursion
-                                     (goto-line 1)
+                                     (goto-char 1)
                                      (line-end-position end-line))
                                    t)
            (replace-match "" nil nil))))
