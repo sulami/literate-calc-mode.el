@@ -43,6 +43,24 @@
                              " => " name ": " (calc-eval calculation))
                      (buffer-string))))))
 
+(ert-deftest literate-calc-mode/remove-results-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((input "= 1 + 1"))
+      (insert input)
+      (literate-calc-insert-results)
+      (literate-calc-remove-results)
+      (should (equal input (buffer-string))))))
+
+(ert-deftest literate-calc-mode/remove-named-results-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((input "Foo Bar = 1 + 1"))
+      (insert input)
+      (literate-calc-insert-results)
+      (literate-calc-remove-results)
+      (should (equal input (buffer-string))))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here

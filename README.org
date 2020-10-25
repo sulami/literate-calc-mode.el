@@ -57,6 +57,7 @@ being active:
 | =M-x literate-calc-eval-buffer=    | Evaluates the whole buffer                     |
 | =M-x literate-calc-insert-results= | Evaluates the whole buffer and inserts results |
 | =M-x literate-calc-clear-overlays= | Removes all overlays and clears variables      |
+| =M-x literate-calc-remove-results= | Removes all results and clears variables       |
 
 ** Using Units
 
