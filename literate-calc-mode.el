@@ -195,19 +195,39 @@ shadowing."
            (forward-line 1)))))))
 
 ;;;###autoload
-(defun literate-calc-remove-results ()
-  "Remove inserted results from buffer."
-  (interactive)
+(defun literate-calc-remove-results (start end)
+  "Remove inserted results from buffer between START and END."
+  (interactive "r")
   (unless (string-empty-p (buffer-string))
     (literate-calc--without-hooks
      (save-excursion
-       (goto-char (point-min))
-       (while (re-search-forward (rx " => "
-                                     (opt (+ (any alpha space)) ": ")
-                                     (+ (any digit "."))
-                                     line-end)
-                                 nil t)
-         (replace-match "" nil nil)))
+       (let* ((start (if (region-active-p)
+                         start
+                       (point-min)))
+              (end (if (region-active-p)
+                       end
+                     (point-max)))
+              ;; NOTE We are shortening the buffer while looping, so
+              ;; `end' actually creeps further towards the end with
+              ;; every deletion. We can assume that we don't alter the
+              ;; number of lines, so we just bound the search on the
+              ;; line number instead of the position. Because marking
+              ;; a whole line also technically places `point' in the
+              ;; next line, we have to walk back one char to make sure
+              ;; we don't overreach by one line. This effectively
+              ;; removes an empty line off the end, but doesn't affect
+              ;; non-empty lines at the end.
+              (end-line (line-number-at-pos (- end 1))))
+         (goto-char start)
+         (while (re-search-forward (rx " => "
+                                       (opt (+ (any alphanumeric blank "-_")) ": ")
+                                       (+ (any digit blank "._"))
+                                       line-end)
+                                   (save-excursion
+                                     (goto-line 1)
+                                     (line-end-position end-line))
+                                   t)
+           (replace-match "" nil nil))))
      (setq-local literate-calc--scope (list)))))
 
 (defun literate-calc--eval-buffer (beg _end pre-change-length)

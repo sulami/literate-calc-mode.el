@@ -49,7 +49,7 @@
     (let ((input "= 1 + 1"))
       (insert input)
       (literate-calc-insert-results)
-      (literate-calc-remove-results)
+      (literate-calc-remove-results nil nil)
       (should (equal input (buffer-string))))))
 
 (ert-deftest literate-calc-mode/remove-named-results-test ()
@@ -58,8 +58,58 @@
     (let ((input "Foo Bar = 1 + 1"))
       (insert input)
       (literate-calc-insert-results)
-      (literate-calc-remove-results)
+      (literate-calc-remove-results nil nil)
       (should (equal input (buffer-string))))))
+
+(ert-deftest literate-calc-mode/remove-results-several-lines-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((first-line "= 1 + 1")
+          (second-line "Foo Bar = 2 + 2")
+          (third-line "= 3 + 3"))
+      (insert first-line "\n" second-line "\n" third-line)
+      (literate-calc-insert-results)
+      (literate-calc-remove-results nil nil)
+      (should (equal (concat first-line "\n"
+                             second-line "\n"
+                             third-line)
+                     (buffer-string))))))
+
+(ert-deftest literate-calc-mode/remove-results-in-region-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((first-line "= 1 + 1")
+          (second-line "= 2 + 2")
+          (third-line "= 3 + 3"))
+      (insert first-line "\n" second-line "\n" third-line)
+      (literate-calc-insert-results)
+      (goto-line 2)
+      (transient-mark-mode)
+      (set-mark (line-beginning-position))
+      (goto-char (line-end-position))
+      (call-interactively #'literate-calc-remove-results nil)
+      (should (equal (concat first-line " => 2\n"
+                             second-line "\n"
+                             third-line " => 6")
+                     (buffer-string))))))
+
+(ert-deftest literate-calc-mode/remove-results-in-region-last-line-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((first-line "= 1 + 1")
+          (second-line "= 2 + 2")
+          (third-line "= 3 + 3"))
+      (insert first-line "\n" second-line "\n" third-line)
+      (literate-calc-insert-results)
+      (goto-line 3)
+      (transient-mark-mode)
+      (set-mark (line-beginning-position))
+      (goto-char (line-end-position))
+      (call-interactively #'literate-calc-remove-results nil)
+      (should (equal (concat first-line " => 2\n"
+                             second-line " => 4\n"
+                             third-line)
+                     (buffer-string))))))
 
 (provide 'literate-calc-mode-test)
 
