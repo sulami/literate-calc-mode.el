@@ -45,7 +45,12 @@ Emacs.
 There is a =M-x customize= group named after the mode which contains
 the following options:
 
-| ~literate-calc-mode-inhibit-in-src-blocks~ | Hook functions called for each line to test whether to inhibit calculation |
+| ~literate-calc-mode-inhibit-line-functions~ | Hook functions called for each line to test whether to inhibit calculation |
+
+There is currently a single inhibitor, which comes installed by
+default:
+
+- ~literate-calc-mode-inhibit-in-src-blocks~ :: Prevents evaluation inside org-mode ~src~ blocks
 
 Of course you can also just ~setq~ the options directly.
 
@@ -135,6 +140,7 @@ Annual Savings = 12 * (Monthly Income - Monthly Expenses) => Annual Savings: 600
 All values are recalculated on every update in a spreadsheet-like
 fashion.
 #+end_src
+
 * Roadmap
 
 There are some additional features I'm currently thinking about.
