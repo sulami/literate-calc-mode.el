@@ -85,7 +85,7 @@
       (literate-calc-insert-results)
       (goto-line 2)
       (transient-mark-mode)
-      (set-mark (line-beginning-position))
+      (push-mark (line-beginning-position) t t)
       (goto-char (line-end-position))
       (call-interactively #'literate-calc-remove-results nil)
       (should (equal (concat first-line " => 2\n"
@@ -103,7 +103,7 @@
       (literate-calc-insert-results)
       (goto-line 3)
       (transient-mark-mode)
-      (set-mark (line-beginning-position))
+      (push-mark (line-beginning-position) t t)
       (goto-char (line-end-position))
       (call-interactively #'literate-calc-remove-results nil)
       (should (equal (concat first-line " => 2\n"
