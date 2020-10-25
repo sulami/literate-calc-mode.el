@@ -45,8 +45,10 @@
 (defvar-local literate-calc--scope (list))
 
 (defconst literate-calc--expression (rx string-start
-                                        (opt (1+ (or letter
-                                                     blank)))
+                                        (opt (1+ (or alphanumeric
+                                                     blank
+                                                     "-"
+                                                     "_")))
                                         "="
                                         (1+ (not (any ?=)))
                                         string-end))
