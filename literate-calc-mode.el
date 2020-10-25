@@ -32,7 +32,7 @@
 
 (require 'calc)
 (require 'cl-lib)
-(require 'org)
+(require 'org-element)
 (require 'rx)
 (require 's)
 (require 'subr-x)
