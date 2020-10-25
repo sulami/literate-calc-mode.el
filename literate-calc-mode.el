@@ -63,14 +63,20 @@ If any of these functions returns non-nil, overlays will not be displayed."
 (defvar-local literate-calc-minor-mode nil)
 (defvar-local literate-calc--scope (list))
 
-(defconst literate-calc--expression (rx string-start
-                                        (opt (1+ (or alphanumeric
-                                                     blank
-                                                     "-"
-                                                     "_")))
-                                        "="
-                                        (1+ (not (any ?=)))
-                                        string-end))
+(defconst literate-calc--expression
+  (rx string-start
+      (opt (1+ (or alphanumeric
+                   blank
+                   (any "-_"))))
+      "="
+      (1+ (not (any ?=)))
+      string-end))
+
+(defconst literate-calc--result
+  (rx " => "
+      (opt (+ (any alphanumeric blank "-_")) ": ")
+      (+ (any digit blank "._"))
+      line-end))
 
 (defmacro literate-calc--without-hooks (&rest body)
   "Run BODY with deactivated edit hooks."
@@ -240,10 +246,7 @@ shadowing."
               ;; non-empty lines at the end.
               (end-line (line-number-at-pos (- end 1))))
          (goto-char start)
-         (while (re-search-forward (rx " => "
-                                       (opt (+ (any alphanumeric blank "-_")) ": ")
-                                       (+ (any digit blank "._"))
-                                       line-end)
+         (while (re-search-forward literate-calc--result
                                    (save-excursion
                                      (goto-line 1)
                                      (line-end-position end-line))
