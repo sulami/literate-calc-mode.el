@@ -23,6 +23,26 @@
 (ert-deftest literate-calc-mode-test/sanity-test ()
   (should (equal 1 1)))
 
+(ert-deftest literate-calc-mode-test/insert-results-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((calculation "1 + 1"))
+      (insert "= " calculation)
+      (literate-calc-insert-results)
+      (should (equal (concat "= " calculation " => " (calc-eval calculation))
+                     (buffer-string))))))
+
+(ert-deftest literate-calc-mode-test/insert-named-results-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((name "Foo Bar")
+          (calculation "1 + 1"))
+      (insert name " = " calculation)
+      (literate-calc-insert-results)
+      (should (equal (concat name " = " calculation
+                             " => " name ": " (calc-eval calculation))
+                     (buffer-string))))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here
