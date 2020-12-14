@@ -65,6 +65,24 @@
       (literate-calc-remove-results nil nil)
       (should (equal input (buffer-string))))))
 
+(ert-deftest literate-calc-mode/remove-negative-results-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((input "= 1 - 2.5"))
+      (insert input)
+      (literate-calc-insert-results)
+      (literate-calc-remove-results nil nil)
+      (should (equal input (buffer-string))))))
+
+(ert-deftest literate-calc-mode/remove-negative-named-results-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((input "Foo Bar = 1 - 2.5"))
+      (insert input)
+      (literate-calc-insert-results)
+      (literate-calc-remove-results nil nil)
+      (should (equal input (buffer-string))))))
+
 (ert-deftest literate-calc-mode/remove-results-several-lines-test ()
   (with-temp-buffer
     (literate-calc-mode)

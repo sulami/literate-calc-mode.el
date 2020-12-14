@@ -75,6 +75,7 @@ If any of these functions returns non-nil, overlays will not be displayed."
 (defconst literate-calc--result
   (rx " => "
       (opt (+ (any alphanumeric blank "-_")) ": ")
+      (opt "-")
       (+ (any digit blank "._[,]"))
       line-end))
 
