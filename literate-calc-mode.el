@@ -54,6 +54,15 @@ If any of these functions returns non-nil, overlays will not be displayed."
   :group 'literate-calc-mode
   :type 'hook)
 
+(defcustom literate-calc-mode-idle-time 1
+  "How long to wait after typing to recalculate results.
+
+A larger value can prevent lagginess in larger buffers by only
+recalculating once the buffer contents have settled."
+  :group 'literate-calc-mode
+  :type '(choice integer
+                 float))
+
 (defun literate-calc-mode-inhibit-in-src-blocks ()
   "Return non-nil if point is in a source block."
   (and (derived-mode-p #'org-mode)
@@ -62,6 +71,7 @@ If any of these functions returns non-nil, overlays will not be displayed."
 
 (defvar-local literate-calc-minor-mode nil)
 (defvar-local literate-calc--scope (list))
+(defvar-local literate-calc--idle-timer nil)
 
 (defconst literate-calc--expression
   (rx string-start
@@ -186,22 +196,25 @@ shadowing."
       (literate-calc--add-binding binding))))
 
 ;;;###autoload
-(defun literate-calc-eval-buffer ()
-  "Evaluate all calc expressions in the current buffer in order."
+(cl-defun literate-calc-eval-buffer (&optional (buffer (current-buffer)))
+  "Evaluate all calc expressions in the current buffer in order.
+
+If BUFFER is set, run in it, otherwise in `current-buffer'."
   (interactive)
-  (literate-calc-clear-overlays)
-  (unless (string-empty-p (buffer-string))
-    (save-excursion
-      (goto-char (point-min))
-      (let ((buffer-line-count (count-lines (point-min) (point-max)))
-            (line-number 1))
-        (while (<= line-number buffer-line-count)
-          (unless (run-hook-with-args-until-success 'literate-calc-mode-inhibit-line-functions)
-            (let ((binding (literate-calc--process-line (thing-at-point 'line)
-                                                        literate-calc--scope)))
-              (literate-calc--add-binding binding)))
-          (setq line-number (1+ line-number))
-          (forward-line 1))))))
+  (with-current-buffer buffer
+    (literate-calc-clear-overlays)
+    (unless (string-empty-p (buffer-string))
+      (save-excursion
+        (goto-char (point-min))
+        (let ((buffer-line-count (count-lines (point-min) (point-max)))
+              (line-number 1))
+          (while (<= line-number buffer-line-count)
+            (unless (run-hook-with-args-until-success 'literate-calc-mode-inhibit-line-functions)
+              (let ((binding (literate-calc--process-line (thing-at-point 'line)
+                                                          literate-calc--scope)))
+                (literate-calc--add-binding binding)))
+            (setq line-number (1+ line-number))
+            (forward-line 1)))))))
 
 ;;;###autoload
 (defun literate-calc-insert-results ()
@@ -255,28 +268,27 @@ shadowing."
            (replace-match "" nil nil))))
      (setq-local literate-calc--scope (list)))))
 
-(defun literate-calc--eval-buffer (beg _end pre-change-length)
-  "Re-eval the buffer on deletions or if we are near a calc line.
+(defun literate-calc--async-eval-buffer (_beg _end _pre-change-length)
+  "Schedule `literate-calc-eval-buffer' after some idle time.
 
-BEG, END, and PRE-CHANGE-LENGTH are what we get by this being a
-handler for `after-change-functions'."
-  (save-match-data
-    (when (or (not (equal 0 pre-change-length))
-              (overlays-in (line-beginning-position) (line-end-position))
-              (save-excursion
-                (goto-char beg)
-                (string-match-p literate-calc--expression
-                                (thing-at-point 'line))))
-      (literate-calc-eval-buffer))))
+The exact timeout is determined by `literate-calc-mode-idle-time'."
+  (when literate-calc--idle-timer
+    (cancel-timer literate-calc--idle-timer))
+  (setq literate-calc--idle-timer
+        (run-with-idle-timer literate-calc-mode-idle-time
+                             nil
+                             #'literate-calc-eval-buffer
+                             (current-buffer))))
 
 (defun literate-calc--setup-hooks ()
   "Set up after-edit hooks & run first evaluation."
-  (add-hook 'after-change-functions #'literate-calc--eval-buffer nil t)
+  (add-hook 'after-change-functions #'literate-calc--async-eval-buffer nil t)
   (literate-calc-eval-buffer))
 
 (defun literate-calc--exit ()
   "Clean up hooks & overlays."
-  (remove-hook 'after-change-functions #'literate-calc--eval-buffer t)
+  (cancel-timer literate-calc--idle-timer)
+  (remove-hook 'after-change-functions #'literate-calc--async-eval-buffer t)
   (literate-calc-clear-overlays))
 
 (defvar literate-calc-font-lock-defaults)
