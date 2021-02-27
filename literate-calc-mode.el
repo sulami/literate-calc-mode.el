@@ -32,6 +32,7 @@
 
 (require 'calc)
 (require 'cl-lib)
+(require 'ob)
 (require 'org-element)
 (require 'rx)
 (require 's)
@@ -39,7 +40,6 @@
 (require 'thingatpt)
 
 ;; TODO semantic highlighting
-;; TODO org-babel-execute
 ;; TODO org export
 
 (defgroup literate-calc-mode nil
@@ -302,6 +302,47 @@ handler for `after-change-functions'."
   (if literate-calc-minor-mode
       (literate-calc--setup-hooks)
     (literate-calc--exit)))
+
+(defun org-babel-expand-body:literate-calc (body
+                                            params
+                                            &optional
+                                            processed-params)
+  "Expand BODY according to PARAMS, return the expanded body."
+  (message "body: %s; params: %s" params processed-params)
+  (let ((vars (mapcar #'cdr
+	              (cl-remove-if-not (lambda (x) (eq (car x) :var))
+                                        processed-params))))
+    (concat
+     (mapconcat
+      (lambda (pair)
+        (format "%s = %s" (car pair) (cdr pair)))
+      vars "\n")
+     (when vars "\n")
+     body)))
+
+(defun org-babel-execute:literate-calc (body params)
+  "Execute a block of literate-calc code with org-babel.
+This function is called by `org-babel-execute-src-block'"
+  (let* ((processed-params (org-babel-process-params params))
+         (vars (alist-get :var processed-params))
+         (result-type (alist-get :result-type processed-params))
+         (full-body (org-babel-expand-body:literate-calc
+                     body params processed-params)))
+    (message "RESULT %s" result-type)
+    (with-temp-buffer
+      (insert full-body)
+      (literate-calc-insert-results)
+      (if (equal 'output result-type)
+          ;; Return output.
+          (buffer-string)
+        ;; Return value.
+        (progn
+          (goto-char (point-max))
+          (when-let ((found (re-search-backward literate-calc--result
+                                                (point-min)
+                                                t)))
+            (buffer-substring-no-properties (+ found (length " => "))
+                                            (line-end-position))))))))
 
 (provide 'literate-calc-mode)
 

@@ -94,6 +94,16 @@ You can also use unknown mathematical symbols:
 = x*2 + x-3 => 3 x - 3
 #+end_src
 
+** Evaluation in Org
+
+Org-mode source blocks can be evaluated (~C-c C-c~ by default).
+
+If ~:results~ is set to ~value~, which is the default, a block returns
+its last result. If ~:results~ is set to ~output~, it will return the
+entire block, annotated with results.
+
+Local variables can be defined in header arguments as ~:var a=38 b=4~.
+
 * Full Example
 
 #+begin_src fundamental
@@ -162,16 +172,3 @@ variable, so that you can see where it's used at a glance.
 I might steal some code from [[https://github.com/Fanael/rainbow-identifiers][rainbow-identifiers]], which is one of the
 [[https://github.com/ankurdave/color-identifiers-mode][shorter existing implementations]] around, and adapt that to our needs.
 
-** Export/Import
-
-Currently there is the option to "bake in" results by adding them to
-the buffer contents. If there is genuine need for exporting
-calculations with results (so anyone can read them), and then maybe
-also importing them again, there needs to be more tooling around this.
-
-I've also been toying with the idea of integrating with org-babel, so
-that you could have babel ~literate-calc~ blocks which evaluate and
-export properly.
-
-If you have opinions on this, please feel free to open an issue or
-send me an email so I can figure out what the best way to do this is.

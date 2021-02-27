@@ -144,6 +144,38 @@
                              third-line)
                      (buffer-string))))))
 
+(ert-deftest literate-calc-mode/execute-output-test ()
+  (should (equal (org-babel-execute:literate-calc
+                  "= 1 + 1"
+                  '((:results . "output")))
+                 "= 1 + 1 => 2")))
+
+(ert-deftest literate-calc-mode/execute-value-test ()
+  (should (equal (org-babel-execute:literate-calc
+                  "= 1 + 1"
+                  '((:results . "value")))
+                 "2")))
+
+(ert-deftest literate-calc-mode/execute-vars-test ()
+  (should (equal (org-babel-execute:literate-calc
+                  "= a + b"
+                  '((:var a . 38)
+                    (:var b . 4)
+                    (:results . "value")))
+                 "42")))
+
+(ert-deftest literate-calc-mode/execute-empty-output-test ()
+  (should (equal (org-babel-execute:literate-calc
+                  "something"
+                  '((:results . "output")))
+                 "something")))
+
+(ert-deftest literate-calc-mode/execute-empty-value-test ()
+  (should (equal (org-babel-execute:literate-calc
+                  "something"
+                  '((:results . "value")))
+                 nil)))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here
