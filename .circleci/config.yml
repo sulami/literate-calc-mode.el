@@ -30,9 +30,13 @@ jobs:
             emacs -batch \
               -l ert \
               -l test/deps.el \
+              -l ert-junit \
               -l literate-calc-mode.el \
               -l test/literate-calc-mode-test.el \
-              -f ert-run-tests-batch-and-exit
+              -f ert-junit-run-tests-batch-and-exit \
+              ./results.xml
+      - store_test_results:
+          path: results.xml
 
 workflows:
   test:
