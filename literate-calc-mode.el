@@ -76,7 +76,7 @@ If any of these functions returns non-nil, overlays will not be displayed."
   (rx " => "
       (opt (+ (any alphanumeric blank "-_")) ": ")
       (opt "-")
-      (+ (any digit blank "._[,]"))
+      (+? anything)
       line-end))
 
 (defmacro literate-calc--without-hooks (&rest body)
