@@ -287,7 +287,8 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
 
 (defun literate-calc--exit ()
   "Clean up hooks & overlays."
-  (cancel-timer literate-calc--idle-timer)
+  (when literate-calc--idle-timer
+    (cancel-timer literate-calc--idle-timer))
   (remove-hook 'after-change-functions #'literate-calc--async-eval-buffer t)
   (literate-calc-clear-overlays))
 
