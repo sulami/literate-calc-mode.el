@@ -310,7 +310,6 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
 (define-minor-mode literate-calc-minor-mode
   "Evaluates calc expressions"
   :lighter "lit-calc"
-  (message "%s" literate-calc-minor-mode)
   (if literate-calc-minor-mode
       (literate-calc--setup-hooks)
     (literate-calc--exit)))
@@ -320,7 +319,6 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
                                             &optional
                                             processed-params)
   "Expand BODY according to PARAMS, return the expanded body."
-  (message "body: %s; params: %s" params processed-params)
   (let ((vars (mapcar #'cdr
 	              (cl-remove-if-not (lambda (x) (eq (car x) :var))
                                         processed-params))))
@@ -340,7 +338,6 @@ This function is called by `org-babel-execute-src-block'"
          (result-type (alist-get :result-type processed-params))
          (full-body (org-babel-expand-body:literate-calc
                      body params processed-params)))
-    (message "RESULT %s" result-type)
     (with-temp-buffer
       (insert full-body)
       (literate-calc-insert-results)
