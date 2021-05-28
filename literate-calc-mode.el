@@ -100,6 +100,11 @@ recalculating once the buffer contents have settled."
      (when hooks-active
        (literate-calc--setup-hooks))))
 
+(defun literate-calc--eval (value)
+  "Wrapper around `(calc-eval VALUE)' with extra args."
+  (calc-eval `(,value
+               calc-group-digits t)))
+
 (defun literate-calc--format-result (name result)
   "Return the output format for RESULT with the optional NAME.
 
@@ -149,14 +154,19 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
                                             (s-replace k (format "(%s)" v) s)))
                                         variable-scope
                                         :initial-value var-value))
-             (var-result (if (string-empty-p resolved-value)
-                             "0"
-                           (format "%s" (calc-eval resolved-value)))))
+             (pretty-result (if (string-empty-p resolved-value)
+                                "0"
+                              (format "%s" (literate-calc--eval resolved-value)))))
         (if insert
-            (literate-calc--insert-result var-name var-result)
-            (literate-calc--create-overlay var-name var-result))
+            (literate-calc--insert-result var-name pretty-result)
+          (literate-calc--create-overlay var-name pretty-result))
         (unless (string-empty-p var-name)
-          (list var-name var-result))))))
+          ;; Re-calculate without visual fluff such as digit grouping,
+          ;; so that we can continue using the value without
+          ;; formatting-related errors.
+          (list var-name (if (string-empty-p resolved-value)
+                             "0"
+                           (format "%s" (calc-eval resolved-value)))))))))
 
 ;;;###autoload
 (defun literate-calc-clear-overlays ()

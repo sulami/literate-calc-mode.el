@@ -33,7 +33,7 @@
     (let ((calculation "1 + 1"))
       (insert "= " calculation)
       (literate-calc-insert-results)
-      (should (equal (concat "= " calculation " => " (calc-eval calculation))
+      (should (equal (concat "= " calculation " => " (literate-calc--eval calculation))
                      (buffer-string))))))
 
 (ert-deftest literate-calc-mode-test/insert-named-results-test ()
@@ -44,7 +44,7 @@
       (insert name " = " calculation)
       (literate-calc-insert-results)
       (should (equal (concat name " = " calculation
-                             " => " name ": " (calc-eval calculation))
+                             " => " name ": " (literate-calc--eval calculation))
                      (buffer-string))))))
 
 (ert-deftest literate-calc-mode/remove-results-test ()
@@ -175,6 +175,23 @@
                   "something"
                   '((:results . "value")))
                  nil)))
+
+(ert-deftest literate-calc-mode/digit-separator-test ()
+  (should (equal "9,001"
+                 (literate-calc--eval "9001"))))
+
+(ert-deftest literate-calc-mode/digit-separator-usage-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((value "9001"))
+      (insert "x = " value)
+      (insert "\n")
+      (insert "y = x")
+      (literate-calc-insert-results)
+      (should (equal (concat "x = " value " => x: " (literate-calc--eval value)
+                             "\n"
+                             "y = x => y: " (literate-calc--eval value))
+                     (buffer-string))))))
 
 (provide 'literate-calc-mode-test)
 
