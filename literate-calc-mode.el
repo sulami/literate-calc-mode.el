@@ -73,6 +73,8 @@ recalculating once the buffer contents have settled."
 (defvar-local literate-calc--scope (list))
 (defvar-local literate-calc--idle-timer nil)
 
+(defconst literate-calc--previous-var "_")
+
 (defconst literate-calc--expression
   (rx string-start
       (opt (1+ (or alphanumeric
@@ -141,7 +143,7 @@ If INSERT is true, insert the result in the buffer, otherwise create
 an overlay.
 
 Returns 'nil' if the line is not a calc expression.
-Returns 'nil' if the result is not bound to a name.
+Returns a list of (_ RESULT) if the result is not bound to a name.
 Returns a list of (NAME RESULT) if the result is bound to a name."
   (save-match-data
     (when (string-match-p literate-calc--expression line)
@@ -160,13 +162,16 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
         (if insert
             (literate-calc--insert-result var-name pretty-result)
           (literate-calc--create-overlay var-name pretty-result))
-        (unless (string-empty-p var-name)
-          ;; Re-calculate without visual fluff such as digit grouping,
-          ;; so that we can continue using the value without
-          ;; formatting-related errors.
-          (list var-name (if (string-empty-p resolved-value)
-                             "0"
-                           (format "%s" (calc-eval resolved-value)))))))))
+        (list
+         (if (string-empty-p var-name)
+             literate-calc--previous-var
+           var-name)
+         ;; Re-calculate without visual fluff such as digit grouping,
+         ;; so that we can continue using the value without
+         ;; formatting-related errors.
+         (if (string-empty-p resolved-value)
+             "0"
+           (format "%s" (calc-eval resolved-value))))))))
 
 ;;;###autoload
 (defun literate-calc-clear-overlays ()
@@ -179,7 +184,8 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
   (setq-local literate-calc--scope (list)))
 
 (defun literate-calc--add-binding (binding)
-  "Add BINDING to the buffer-local variable scope.
+  "Add BINDING to the buffer-local variable scope. In addition bind
+the result to a 'previous result' type of var in scope.
 
 Bindings are sorted by length descending to prevent substring
 shadowing."
@@ -190,7 +196,11 @@ shadowing."
                           (list binding)
                           (lambda (x y)
                             (<= (length (car y))
-                                (length (car x))))))))
+                                (length (car x))))))
+    ;; Call again to set _
+    (when (not (string= (first binding) literate-calc--previous-var))
+      (literate-calc--add-binding (list literate-calc--previous-var
+                                        (second binding))))))
 
 ;;;###autoload
 (defun literate-calc-eval-line ()

@@ -144,6 +144,19 @@
                              third-line)
                      (buffer-string))))))
 
+(ert-deftest literate-calc-mode/previous-result-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (let ((first-line "Lunch = 42 USD / 2")
+          (second-line "= _")
+          (third-line "= Lunch"))
+      (insert first-line "\n" second-line "\n" third-line)
+      (literate-calc-insert-results)
+      (should (equal (concat first-line " => Lunch: 21 USD\n"
+                             second-line " => 21 USD\n"
+                             third-line " => 21 USD")
+                     (buffer-string))))))
+
 (ert-deftest literate-calc-mode/execute-output-test ()
   (should (equal (org-babel-execute:literate-calc
                   "= 1 + 1"
