@@ -198,9 +198,9 @@ shadowing."
                             (<= (length (car y))
                                 (length (car x))))))
     ;; Call again to set _
-    (when (not (string= (first binding) literate-calc--previous-var))
+    (when (not (string= (car binding) literate-calc--previous-var))
       (literate-calc--add-binding (list literate-calc--previous-var
-                                        (second binding))))))
+                                        (cadr binding))))))
 
 ;;;###autoload
 (defun literate-calc-eval-line ()
