@@ -58,6 +58,15 @@ default:
 
 Of course you can also just ~setq~ the options directly.
 
+** Calc Configuration
+
+Because LCM uses Emacs =calc= under the hood, a lot of configuration
+options for =calc= also affect LCM operation.
+
+An interesting one is =calc-multiplication-has-precedence=, which when
+non-nil means that multiplication will have higher precedence than
+division, which can lead to surprising results.
+
 * Use
 
 There is both a major ~literate-calc-mode~ and a minor
