@@ -317,7 +317,7 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
   (when literate-calc--idle-timer
     (cancel-timer literate-calc--idle-timer))
   (remove-hook 'after-change-functions #'literate-calc--async-eval-buffer t)
-  (remove-hook 'literate-calc-radix-change-hook #'literate-calc--async-eval-buffer nil t)
+  (remove-hook 'literate-calc-radix-change-hook #'literate-calc--async-eval-buffer t)
   (literate-calc-clear-overlays))
 
 (defvar literate-calc-font-lock-defaults)
