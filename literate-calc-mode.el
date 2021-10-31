@@ -311,7 +311,6 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
   (add-hook 'literate-calc-radix-change-hook #'literate-calc--async-eval-buffer nil t)
   (literate-calc-eval-buffer))
 
-
 (defun literate-calc--exit ()
   "Clean up hooks & overlays."
   (when literate-calc--idle-timer
