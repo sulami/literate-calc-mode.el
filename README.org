@@ -47,6 +47,7 @@ the following options:
 
 | ~literate-calc-mode-idle-time~              | How long to wait after typing to recalculate results                       |
 | ~literate-calc-mode-inhibit-line-functions~ | Hook functions called for each line to test whether to inhibit calculation |
+| ~literate-calc-mode-radix~                  | Default radix/base for results                                             |
 
 The idle time prevents lag due to constant recalculation in the middle
 of typing, defaulting to 1 second.
@@ -116,6 +117,24 @@ its last result. If ~:results~ is set to ~output~, it will return the
 entire block, annotated with results.
 
 Local variables can be defined in header arguments as ~:var a=38 b=4~.
+
+** Changing radix/base
+
+You can change the ~literate-calc-mode-radix~ custom variable to set the default
+base for number output globally for all literate-calc-mode buffers, but it's
+also possible to change the output radix of the current buffer by calling the
+interactive function ~literate-calc-set-radix~ in your desired buffer. For
+example, =M-x literate-calc-set-radix 16= will display results with base 16
+(hex).
+
+Example output with radix set to 16:
+
+#+begin_src fundamental
+a0 = 2#11001100 => a0: 16#CC
+a1 = 2#11110000 => a1: 16#F0
+= and(a0, a1) => 16#C0
+#+end_src
+
 
 * Full Example
 
