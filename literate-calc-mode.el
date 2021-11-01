@@ -63,6 +63,11 @@ recalculating once the buffer contents have settled."
   :type '(choice integer
                  float))
 
+(defcustom literate-calc-mode-radix 10
+  "Radix for display of output."
+  :group 'literate-calc-mode
+  :type 'integer)
+
 (defun literate-calc-mode-inhibit-in-src-blocks ()
   "Return non-nil if point is in a source block."
   (and (derived-mode-p #'org-mode)
@@ -72,6 +77,9 @@ recalculating once the buffer contents have settled."
 (defvar-local literate-calc-minor-mode nil)
 (defvar-local literate-calc--scope (list))
 (defvar-local literate-calc--idle-timer nil)
+
+(defvar literate-calc-radix-change-hook nil
+  "Hook called when radix is changed.")
 
 (defconst literate-calc--expression
   (rx string-start
@@ -103,7 +111,14 @@ recalculating once the buffer contents have settled."
 (defun literate-calc--eval (value)
   "Wrapper around `(calc-eval VALUE)' with extra args."
   (calc-eval `(,value
-               calc-group-digits t)))
+               calc-group-digits t
+               calc-number-radix ,literate-calc-mode-radix)))
+
+(defun literate-calc-set-radix (radix)
+  "Sets the output radix."
+  (interactive "nSet output radix to: ")
+  (setq-local literate-calc-mode-radix radix)
+  (run-hook-with-args 'literate-calc-radix-change-hook nil nil nil))
 
 (defun literate-calc--format-result (name result)
   "Return the output format for RESULT with the optional NAME.
@@ -293,6 +308,7 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
 (defun literate-calc--setup-hooks ()
   "Set up after-edit hooks & run first evaluation."
   (add-hook 'after-change-functions #'literate-calc--async-eval-buffer nil t)
+  (add-hook 'literate-calc-radix-change-hook #'literate-calc--async-eval-buffer nil t)
   (literate-calc-eval-buffer))
 
 (defun literate-calc--exit ()
@@ -300,6 +316,7 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
   (when literate-calc--idle-timer
     (cancel-timer literate-calc--idle-timer))
   (remove-hook 'after-change-functions #'literate-calc--async-eval-buffer t)
+  (remove-hook 'literate-calc-radix-change-hook #'literate-calc--async-eval-buffer t)
   (literate-calc-clear-overlays))
 
 (defvar literate-calc-font-lock-defaults)
