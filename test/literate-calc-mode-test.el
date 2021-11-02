@@ -193,6 +193,14 @@
                              "y = x => y: " (literate-calc--eval value))
                      (buffer-string))))))
 
+(ert-deftest literate-calc-mode/radix-mode-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (insert "= 9001")
+    (literate-calc-set-radix 16)
+    (literate-calc-insert-results)
+    (should (equal "= 9001 => 16#2329" (buffer-string)))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here
