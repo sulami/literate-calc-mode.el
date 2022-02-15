@@ -201,6 +201,30 @@
     (literate-calc-insert-results)
     (should (equal "= 9001 => 16#2329" (buffer-string)))))
 
+(ert-deftest literate-calc-mode/should-always-start-minor-mode-test ()
+  (let ((literate-calc-mode-max-buffer-size 0))
+    (with-temp-buffer
+      (fundamental-mode)
+      (insert "1234567890")
+      (literate-calc-minor-mode)
+      (should literate-calc-minor-mode))))
+
+(ert-deftest literate-calc-mode/should-start-minor-mode-test ()
+  (let ((literate-calc-mode-max-buffer-size 10))
+    (with-temp-buffer
+      (fundamental-mode)
+      (insert "1234567890")
+      (literate-calc-minor-mode)
+      (should literate-calc-minor-mode))))
+
+(ert-deftest literate-calc-mode/should-not-start-minor-mode-test ()
+  (let ((literate-calc-mode-max-buffer-size 10))
+    (with-temp-buffer
+      (fundamental-mode)
+      (insert "12345678901")
+      (literate-calc-minor-mode)
+      (should (not literate-calc-minor-mode)))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here

@@ -68,6 +68,14 @@ recalculating once the buffer contents have settled."
   :group 'literate-calc-mode
   :type 'integer)
 
+(defcustom literate-calc-mode-max-buffer-size 0
+  "The maximum buffer size for which to activate literate-calc-minor-mode.
+
+If set to a non-zero value, literate-calc-mode will abort in
+buffers larger than this, as measured by `buffer-size'."
+  :group 'literate-calc-mode
+  :type 'integer)
+
 (defun literate-calc-mode-inhibit-in-src-blocks ()
   "Return non-nil if point is in a source block."
   (and (derived-mode-p #'org-mode)
@@ -327,6 +335,11 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
                                    "=")))
         `((,identifier-regexp . (1 font-lock-variable-name-face)))))
 
+(defun literate-calc--should-start-p ()
+  "Return non-nil if literate-calc-mode should start up."
+  (or (zerop literate-calc-mode-max-buffer-size)
+      (<= (buffer-size) literate-calc-mode-max-buffer-size)))
+
 ;;;###autoload
 (define-derived-mode literate-calc-mode fundamental-mode
   "Literate-Calc"
@@ -339,7 +352,11 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
   "Evaluates calc expressions"
   :lighter "lit-calc"
   (if literate-calc-minor-mode
-      (literate-calc--setup-hooks)
+      (if (literate-calc--should-start-p)
+          (literate-calc--setup-hooks)
+        (progn
+          (message "Buffer too large, aborting literate-calc-minor-mode")
+          (setq literate-calc-minor-mode nil)))
     (literate-calc--exit)))
 
 (defun org-babel-expand-body:literate-calc (body
