@@ -317,6 +317,7 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
   "Set up after-edit hooks & run first evaluation."
   (add-hook 'after-change-functions #'literate-calc--async-eval-buffer nil t)
   (add-hook 'literate-calc-radix-change-hook #'literate-calc--async-eval-buffer nil t)
+  (add-hook 'kill-buffer-hook #'literate-calc--exit)
   (literate-calc-eval-buffer))
 
 (defun literate-calc--exit ()
