@@ -10,6 +10,9 @@ executors:
   emacs-27:
     docker:
       - image: silex/emacs:27-alpine
+  emacs-28:
+    docker:
+      - image: silex/emacs:28-alpine
 
 jobs:
   test:
@@ -48,3 +51,4 @@ workflows:
                 - emacs-25
                 - emacs-26
                 - emacs-27
+                - emacs-28
