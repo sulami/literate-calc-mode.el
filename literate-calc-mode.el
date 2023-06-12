@@ -138,7 +138,7 @@ buffers larger than this, as measured by `buffer-size'."
                calc-number-radix ,literate-calc-mode-radix)))
 
 (defun literate-calc-set-radix (radix)
-  "Sets the output radix."
+  "Set the output radix to RADIX."
   (interactive "nSet output radix to: ")
   (setq-local literate-calc-mode-radix radix)
   (run-hook-with-args 'literate-calc-radix-change-hook nil nil nil))
@@ -178,9 +178,6 @@ NAME should be an empty string if RESULT is not bound."
 If an occurrence happens inside any reserved name, as matched by
 `literate-calc--reserved-names-rx', do not replace it."
   (let ((looking-at 0))
-    ;; Replace all occurrences of k with v in
-    ;; s, unless k matches inside a reserved
-    ;; name.
     (while (and (< looking-at (length s))
                 (string-match k s looking-at))
       (let ((match-start (match-beginning 0))
@@ -388,7 +385,7 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
 
 ;;;###autoload
 (define-minor-mode literate-calc-minor-mode
-  "Evaluates calc expressions"
+  "Minor mode to evaluate calc expressions inline."
   :lighter "lit-calc"
   (if literate-calc-minor-mode
       (if (literate-calc--should-start-p)
