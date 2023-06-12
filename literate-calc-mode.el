@@ -31,6 +31,7 @@
 ;;; Code:
 
 (require 'calc)
+(require 'calc-prog)
 (require 'cl-lib)
 (require 'ob)
 (require 'org-element)
@@ -113,6 +114,12 @@ buffers larger than this, as measured by `buffer-size'."
       (+? anything)
       line-end))
 
+(defconst literate-calc--reserved-names-rx
+  (rx (eval `(or . ,(cl-loop for fn in (apropos-internal (rx string-start "calcFunc-")
+                                                         #'functionp)
+                             collect (s-chop-prefix "calcFunc-" (symbol-name fn))))))
+  "Regexp matching reserved function names.")
+
 (defmacro literate-calc--without-hooks (&rest body)
   "Run BODY with deactivated edit hooks."
   `(let ((hooks-active (or (equal major-mode #'literate-calc-mode)
@@ -165,6 +172,29 @@ NAME should be an empty string if RESULT is not bound."
                   'face 'font-lock-comment-face
                   'cursor t))))
 
+(defun literate-calc--substitute-variable-values (s k v)
+  "Replace all occurrences of K in S with V.
+
+If an occurrence happens inside any reserved name, as matched by
+`literate-calc--reserved-names-rx', do not replace it."
+  (let ((looking-at 0))
+    ;; Replace all occurrences of k with v in
+    ;; s, unless k matches inside a reserved
+    ;; name.
+    (while (and (< looking-at (length s))
+                (string-match k s looking-at))
+      (let ((match-start (match-beginning 0))
+            (match-end (match-end 0))
+            (reserved-positions (s-matched-positions-all literate-calc--reserved-names-rx
+                                                         s)))
+        (setq looking-at match-end)
+        (when (cl-notany (lambda (pos)
+                           (or (<= (car pos) match-start (cdr pos))
+                               (<= (car pos) match-end (cdr pos))))
+                         reserved-positions)
+          (setq s (replace-match (format "(%s)" v) t t s)))))
+    s))
+
 (defun literate-calc--process-line (line variable-scope &optional insert)
   "Parse LINE using VARIABLE-SCOPE and maybe add a result.
 
@@ -180,9 +210,9 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
              (var-name (string-trim (car whole-line)))
              (var-value (string-trim (cadr whole-line)))
              (resolved-value (cl-reduce (lambda (s kv)
-                                          (let ((k (car kv))
-                                                (v (cadr kv)))
-                                            (s-replace k (format "(%s)" v) s)))
+                                          (literate-calc--substitute-variable-values s
+                                                                                     (car kv)
+                                                                                     (cadr kv)))
                                         variable-scope
                                         :initial-value var-value))
              (pretty-result (if (string-empty-p resolved-value)

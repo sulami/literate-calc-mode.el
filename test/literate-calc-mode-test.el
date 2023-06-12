@@ -225,6 +225,14 @@
       (literate-calc-minor-mode)
       (should (not literate-calc-minor-mode)))))
 
+(ert-deftest literate-calc-mode-test/overlapping-names-test ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (insert "s = sqrt(25)\n= sqrt(25)")
+    (literate-calc-insert-results)
+    (should (equal "s = sqrt(25) => s: 5\n= sqrt(25) => 5"
+                   (buffer-string)))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here
