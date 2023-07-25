@@ -36,6 +36,7 @@
   (load bootstrap-file nil 'nomessage))
 
 (straight-use-package 'ert-junit)
+(straight-use-package 'dash)
 (straight-use-package 's)
 
 ;;; deps.el ends here

@@ -4,7 +4,7 @@
 ;; Maintainer: Robin Schroer
 ;; Version: 0.1
 ;; Homepage: https://github.com/sulami/literate-calc-mode.el
-;; Package-Requires: ((emacs "25.1") (s "1.12.0"))
+;; Package-Requires: ((emacs "25.1") (dash "2.19.1") (s "1.12.0"))
 ;; Keywords: calc, languages, tools
 
 
@@ -33,6 +33,7 @@
 (require 'calc)
 (require 'calc-prog)
 (require 'cl-lib)
+(require 'dash)
 (require 'ob)
 (require 'org-element)
 (require 'rx)
@@ -176,14 +177,18 @@ NAME should be an empty string if RESULT is not bound."
   "Replace all occurrences of K in S with V.
 
 If an occurrence happens inside any reserved name, as matched by
-`literate-calc--reserved-names-rx', do not replace it."
+`literate-calc--reserved-names-rx', do not replace it if the
+variable name is shorter than the function name."
   (let ((looking-at 0))
     (while (and (< looking-at (length s))
                 (string-match k s looking-at))
       (let ((match-start (match-beginning 0))
             (match-end (match-end 0))
-            (reserved-positions (s-matched-positions-all literate-calc--reserved-names-rx
-                                                         s)))
+            (reserved-positions (-filter (lambda (pos)
+                                           (<= (length k)
+                                               (- (cdr pos) (car pos))))
+                                         (s-matched-positions-all literate-calc--reserved-names-rx
+                                                                  s))))
         (setq looking-at match-end)
         (when (cl-notany (lambda (pos)
                            (or (<= (car pos) match-start (cdr pos))

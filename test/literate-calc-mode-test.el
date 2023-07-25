@@ -225,12 +225,25 @@
       (literate-calc-minor-mode)
       (should (not literate-calc-minor-mode)))))
 
-(ert-deftest literate-calc-mode-test/overlapping-names-test ()
+;; If in a function, don't expand variable names to avoid clobbering
+;; the function.
+(ert-deftest literate-calc-mode-test/variables-overlapping-longer-function-names-test ()
   (with-temp-buffer
     (literate-calc-mode)
     (insert "s = sqrt(25)\n= sqrt(25)")
     (literate-calc-insert-results)
     (should (equal "s = sqrt(25) => s: 5\n= sqrt(25) => 5"
+                   (buffer-string)))))
+
+(ert-deftest literate-calc-mode-test/variables-overlapping-shorter-function-names-test ()
+  "If a variable name overlaps with a function name, in this case
+`year', still expand the variable if it's longer than the
+function."
+  (with-temp-buffer
+    (literate-calc-mode)
+    (insert "yearly = 25\n= yearly * 2")
+    (literate-calc-insert-results)
+    (should (equal "yearly = 25 => yearly: 25\n= yearly * 2 => 50"
                    (buffer-string)))))
 
 (provide 'literate-calc-mode-test)
