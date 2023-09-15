@@ -290,6 +290,13 @@ If BUFFER is set, run in it, otherwise in `current-buffer'."
             (forward-line 1)))))))
 
 ;;;###autoload
+(defun literate-calc-eval-region ()
+    (interactive)
+    (save-restriction
+      (narrow-to-region (region-beginning) (region-end))
+      (literate-calc-eval-buffer)))
+
+;;;###autoload
 (defun literate-calc-insert-results ()
   "Insert results into buffer instead of creating overlays."
   (interactive)
