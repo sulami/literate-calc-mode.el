@@ -290,6 +290,19 @@ If BUFFER is set, run in it, otherwise in `current-buffer'."
             (forward-line 1)))))))
 
 ;;;###autoload
+(defun literate-calc-eval-region (beginning end)
+  "Evaluate all calc expressions in the current region.
+
+Note that variable bindings are scoped to the current evaluation,
+not the buffer as a whole."
+  (interactive "r")
+  (if (use-region-p)
+      (save-restriction
+        (narrow-to-region beginning end)
+        (literate-calc-eval-buffer))
+    (message "No region selected")))
+
+;;;###autoload
 (defun literate-calc-insert-results ()
   "Insert results into buffer instead of creating overlays."
   (interactive)
