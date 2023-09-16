@@ -3,16 +3,19 @@ version: 2.1
 executors:
   emacs-25:
     docker:
-      - image: silex/emacs:25-alpine
+      - image: silex/emacs:25.2-alpine-ci
   emacs-26:
     docker:
-      - image: silex/emacs:26-alpine
+      - image: silex/emacs:26-alpine-ci
   emacs-27:
     docker:
-      - image: silex/emacs:27-alpine
+      - image: silex/emacs:27-alpine-ci
   emacs-28:
     docker:
-      - image: silex/emacs:28-alpine
+      - image: silex/emacs:28-alpine-ci
+  emacs-29:
+    docker:
+      - image: silex/emacs:29-alpine-ci
 
 jobs:
   test:
@@ -22,11 +25,6 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout
-      - run:
-          name: Install external dependencies
-          command: |
-            apk update
-            apk add git
       - run:
           name: Run tests
           command: |
@@ -52,3 +50,4 @@ workflows:
                 - emacs-26
                 - emacs-27
                 - emacs-28
+                - emacs-29
