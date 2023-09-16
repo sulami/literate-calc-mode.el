@@ -83,6 +83,7 @@ There are also some functions which can be called without any mode
 being active:
 
 | =M-x literate-calc-eval-line=      | Evaluates a single line                           |
+| =M-x literate-calc-eval-region=    | Evaluates within the selected region              |
 | =M-x literate-calc-eval-buffer=    | Evaluates the whole buffer                        |
 | =M-x literate-calc-insert-results= | Evaluates the whole buffer and inserts results    |
 | =M-x literate-calc-clear-overlays= | Removes all overlays and clears variables         |
