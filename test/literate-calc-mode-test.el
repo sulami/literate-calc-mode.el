@@ -246,6 +246,23 @@ function."
     (should (equal "yearly = 25 => yearly: 25\n= yearly * 2 => 50"
                    (buffer-string)))))
 
+(ert-deftest literate-calc-mode-test/default-without-usimplify-results ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (insert "= 42 EUR days / days")
+    (literate-calc-insert-results)
+    (should (equal "= 42 EUR days / days => 42 EUR days / days"
+                   (buffer-string)))))
+
+(ert-deftest literate-calc-mode-test/with-usimplify-result-results ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (setq literate-calc-usimplify-results t)
+    (insert "= 42 EUR days / days")
+    (literate-calc-insert-results)
+    (should (equal "= 42 EUR days / days => 42 EUR"
+                   (buffer-string)))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here
