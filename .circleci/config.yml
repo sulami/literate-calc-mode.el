@@ -1,12 +1,6 @@
 version: 2.1
 
 executors:
-  emacs-25:
-    docker:
-      - image: silex/emacs:25.2-alpine-ci
-  emacs-26:
-    docker:
-      - image: silex/emacs:26-alpine-ci
   emacs-27:
     docker:
       - image: silex/emacs:27-alpine-ci
@@ -46,8 +40,6 @@ workflows:
           matrix:
             parameters:
               executor:
-                - emacs-25
-                - emacs-26
                 - emacs-27
                 - emacs-28
                 - emacs-29
