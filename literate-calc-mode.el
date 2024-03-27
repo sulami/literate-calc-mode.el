@@ -89,6 +89,11 @@ buffers larger than this, as measured by `buffer-size'."
   :local t
   :type 'boolean)
 
+(defcustom literate-calc-equals " => "
+  "The string used to indicate a result."
+  :group 'literate-calc-mode
+  :type 'string)
+
 (defun literate-calc-mode-inhibit-in-src-blocks ()
   "Return non-nil if point is in a source block."
   (and (derived-mode-p #'org-mode)
@@ -118,7 +123,7 @@ buffers larger than this, as measured by `buffer-size'."
       string-end))
 
 (defconst literate-calc--result
-  (rx " => "
+  (rx (literal literate-calc-equals)
       (opt (+ (any alphanumeric blank "-_")) ": ")
       (opt "-")
       (+? anything)
@@ -161,8 +166,8 @@ buffers larger than this, as measured by `buffer-size'."
 
 NAME should be an empty string if RESULT is not bound."
   (if (string-empty-p name)
-      (format " => %s" result)
-    (format " => %s: %s" name result)))
+      (format "%s%s" literate-calc-equals result)
+    (format "%s%s: %s" literate-calc-equals name result)))
 
 (defun literate-calc--insert-result (name result)
   "Insert NAME & RESULT at the end of the current line."
@@ -461,7 +466,7 @@ This function is called by `org-babel-execute-src-block'"
           (when-let ((found (re-search-backward literate-calc--result
                                                 (point-min)
                                                 t)))
-            (buffer-substring-no-properties (+ found (length " => "))
+            (buffer-substring-no-properties (+ found (length literate-calc-equals))
                                             (line-end-position))))))))
 
 (provide 'literate-calc-mode)
