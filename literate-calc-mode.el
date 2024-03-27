@@ -401,7 +401,9 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
 (defvar literate-calc-font-lock-defaults)
 (setq literate-calc-font-lock-defaults
       (let ((identifier-regexp (rx line-start
+                                   (zero-or-more blank)
                                    (group (1+ (and (or letter
+                                                       digit
                                                        blank))))
                                    "=")))
         `((,identifier-regexp . (1 font-lock-variable-name-face)))))
