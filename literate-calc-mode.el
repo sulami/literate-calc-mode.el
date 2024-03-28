@@ -89,6 +89,19 @@ buffers larger than this, as measured by `buffer-size'."
   :local t
   :type 'boolean)
 
+(defcustom literate-calc-equals " => "
+  "The string used to indicate a result."
+  :group 'literate-calc-mode
+  :type 'string)
+
+(defface literate-calc-mode-result-face '((t :inherit font-lock-comment-face))
+  "Face used for results."
+  :group 'literate-calc-mode)
+
+(defface literate-calc-mode-identifier-face '((t :inherit font-lock-variable-face))
+  "Face used for identifiers."
+  :group 'literate-calc-mode)
+
 (defun literate-calc-mode-inhibit-in-src-blocks ()
   "Return non-nil if point is in a source block."
   (and (derived-mode-p #'org-mode)
@@ -118,7 +131,7 @@ buffers larger than this, as measured by `buffer-size'."
       string-end))
 
 (defconst literate-calc--result
-  (rx " => "
+  (rx (literal literate-calc-equals)
       (opt (+ (any alphanumeric blank "-_")) ": ")
       (opt "-")
       (+? anything)
@@ -161,8 +174,8 @@ buffers larger than this, as measured by `buffer-size'."
 
 NAME should be an empty string if RESULT is not bound."
   (if (string-empty-p name)
-      (format " => %s" result)
-    (format " => %s: %s" name result)))
+      (format "%s%s" literate-calc-equals result)
+    (format "%s%s: %s" literate-calc-equals name result)))
 
 (defun literate-calc--insert-result (name result)
   "Insert NAME & RESULT at the end of the current line."
@@ -182,7 +195,7 @@ NAME should be an empty string if RESULT is not bound."
     (overlay-put o 'after-string
                  (propertize
                   (literate-calc--format-result name result)
-                  'face 'font-lock-comment-face
+                  'face 'literate-calc-mode-result-face
                   'cursor t))))
 
 (defun literate-calc--substitute-variable-values (s k v)
@@ -396,10 +409,12 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
 (defvar literate-calc-font-lock-defaults)
 (setq literate-calc-font-lock-defaults
       (let ((identifier-regexp (rx line-start
+                                   (zero-or-more blank)
                                    (group (1+ (and (or letter
+                                                       digit
                                                        blank))))
                                    "=")))
-        `((,identifier-regexp . (1 font-lock-variable-name-face)))))
+        `((,identifier-regexp . (1 'literate-calc-mode-identifier-face)))))
 
 (defun literate-calc--should-start-p ()
   "Return non-nil if literate-calc-mode should start up."
@@ -409,7 +424,7 @@ The exact timeout is determined by `literate-calc-mode-idle-time'."
 ;;;###autoload
 (define-derived-mode literate-calc-mode fundamental-mode
   "Literate-Calc"
-  (setq font-lock-defaults '((literate-calc-font-lock-defaults)))
+  (setq font-lock-defaults '(literate-calc-font-lock-defaults))
   (literate-calc--setup-hooks)
   (add-hook 'change-major-mode-hook #'literate-calc--exit nil t))
 
@@ -461,7 +476,7 @@ This function is called by `org-babel-execute-src-block'"
           (when-let ((found (re-search-backward literate-calc--result
                                                 (point-min)
                                                 t)))
-            (buffer-substring-no-properties (+ found (length " => "))
+            (buffer-substring-no-properties (+ found (length literate-calc-equals))
                                             (line-end-position))))))))
 
 (provide 'literate-calc-mode)
