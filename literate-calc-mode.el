@@ -75,6 +75,12 @@ recalculating once the buffer contents have settled."
   :local t
   :type 'integer)
 
+(defcustom literate-calc-mode-extra-options '(calc-group-digits t)
+  "Extra options passed to `calc-eval'."
+  :group 'literate-calc-mode
+  :local t
+  :type '(plist :value-type sexp))
+
 (defcustom literate-calc-mode-max-buffer-size 0
   "The maximum buffer size for which to activate literate-calc-minor-mode.
 
@@ -160,8 +166,8 @@ buffers larger than this, as measured by `buffer-size'."
                         (format "usimplify(%s)" value)
                       value)))
     (calc-eval `(,calc-input
-                 calc-group-digits t
-                 calc-number-radix ,literate-calc-mode-radix))))
+                 calc-number-radix ,literate-calc-mode-radix
+                 ,@literate-calc-mode-extra-options))))
 
 (defun literate-calc-set-radix (radix)
   "Set the output radix to RADIX."
