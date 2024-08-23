@@ -91,13 +91,14 @@ markup language major modes.
 There are also some functions which can be called without any mode
 being active:
 
-| =M-x literate-calc-eval-line=      | Evaluates a single line                           |
-| =M-x literate-calc-eval-region=    | Evaluates within the selected region              |
-| =M-x literate-calc-eval-buffer=    | Evaluates the whole buffer                        |
-| =M-x literate-calc-insert-results= | Evaluates the whole buffer and inserts results    |
-| =M-x literate-calc-clear-overlays= | Removes all overlays and clears variables         |
-| =M-x literate-calc-remove-results= | Removes all results and clears variables          |
-| =M-x literate-calc-set-radix=      | Sets the radix/base output for the current buffer |
+| =M-x literate-calc-eval-line=      | Evaluates a single line                                           |
+| =M-x literate-calc-eval-region=    | Evaluates within the selected region                              |
+| =M-x literate-calc-eval-buffer=    | Evaluates the whole buffer                                        |
+| =M-x literate-calc-insert-results= | Evaluates the whole buffer and inserts results                    |
+| =M-x literate-calc-remove-results= | Removes all results and clears variables                          |
+| =M-x literate-calc-kill-result=    | Evaluates the current line and pushes the result to the kill ring |
+| =M-x literate-calc-clear-overlays= | Removes all overlays and clears variables                         |
+| =M-x literate-calc-set-radix=      | Sets the radix/base output for the current buffer                 |
 
 ** Using Units
 

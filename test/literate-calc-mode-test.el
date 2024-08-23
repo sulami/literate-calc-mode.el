@@ -263,6 +263,12 @@ function."
     (should (equal "= 42 EUR days / days => 42 EUR"
                    (buffer-string)))))
 
+(ert-deftest literate-calc-mode-test/add-to-kill-ring ()
+  (with-temp-buffer
+    (insert "= 21 * 2")
+    (literate-calc-kill-result)
+    (should (equal "42" (current-kill 0 t)))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here

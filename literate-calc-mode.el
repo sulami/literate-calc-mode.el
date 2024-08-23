@@ -228,11 +228,13 @@ variable name is shorter than the function name."
           (setq s (replace-match (format "(%s)" v) t t s)))))
     s))
 
-(defun literate-calc--process-line (line variable-scope &optional insert)
+(defun literate-calc--process-line (line variable-scope &optional destination)
   "Parse LINE using VARIABLE-SCOPE and maybe add a result.
 
-If INSERT is true, insert the result in the buffer, otherwise create
-an overlay.
+Depending on DESTINATION, the result goes to:
+- `'overlay': an overlay (the default)
+- `'insert': the buffer
+- `'kill': the kill-ring
 
 Returns 'nil' if the line is not a calc expression.
 Returns 'nil' if the result is not bound to a name.
@@ -251,9 +253,11 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
              (pretty-result (if (string-empty-p resolved-value)
                                 "0"
                               (format "%s" (literate-calc--eval resolved-value)))))
-        (if insert
-            (literate-calc--insert-result var-name pretty-result)
-          (literate-calc--create-overlay var-name pretty-result))
+        (cl-case destination
+          (overlay (literate-calc--create-overlay var-name pretty-result))
+          (insert (literate-calc--insert-result var-name pretty-result))
+          (kill (kill-new pretty-result))
+          (t (literate-calc--create-overlay var-name pretty-result)))
         (unless (string-empty-p var-name)
           ;; Re-calculate without visual fluff such as digit grouping,
           ;; so that we can continue using the value without
@@ -298,6 +302,12 @@ shadowing."
     (let ((binding (literate-calc--process-line (thing-at-point 'line)
                                                 literate-calc--scope)))
       (literate-calc--add-binding binding))))
+
+;;;###autoload
+(defun literate-calc-kill-result ()
+  "Add the result of the current line to the kill ring."
+  (interactive)
+  (literate-calc--process-line (thing-at-point 'line) literate-calc--scope 'kill))
 
 ;;;###autoload
 (cl-defun literate-calc-eval-buffer (&optional (buffer (current-buffer)))
@@ -347,7 +357,7 @@ not the buffer as a whole."
            (unless (run-hook-with-args-until-success 'literate-calc-mode-inhibit-line-functions)
              (let ((binding (literate-calc--process-line (thing-at-point 'line)
                                                          literate-calc--scope
-                                                         t)))
+                                                         'insert)))
                (literate-calc--add-binding binding)))
            (setq line-number (1+ line-number))
            (forward-line 1)))))))
