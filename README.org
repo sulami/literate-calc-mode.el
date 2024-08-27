@@ -2,7 +2,7 @@
 
 [[https://melpa.org/#/literate-calc-mode][file:https://melpa.org/packages/literate-calc-mode-badge.svg]]
 
-Literate programming for =M-x calc=. There is an [[http://sulami.github.io/posts/literate-calc-mode/][announcement blog
+Literate programming for =M-x calc=. There is an [[https://blog.sulami.xyz/posts/literate-calc-mode/][announcement blog
 post]].
 
 Displays inline results for calculations, supports variables and
