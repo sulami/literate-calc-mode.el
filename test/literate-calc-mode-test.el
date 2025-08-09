@@ -269,6 +269,14 @@ function."
     (literate-calc-kill-result)
     (should (equal "42" (current-kill 0 t)))))
 
+(ert-deftest literate-calc-mode-test/avoid-infinite-recursion ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (insert "n = nil\n= n")
+    (literate-calc-insert-results)
+    (should (equal "n = nil => n: nil\n= n => nil"
+                   (buffer-string)))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here

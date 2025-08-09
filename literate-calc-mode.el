@@ -225,7 +225,10 @@ variable name is shorter than the function name."
                            (or (<= (car pos) match-start (cdr pos))
                                (<= (car pos) match-end (cdr pos))))
                          reserved-positions)
-          (setq s (replace-match (format "(%s)" v) t t s)))))
+          (setq s (replace-match (format "(%s)" v) t t s))
+          ;; If v is longer than k, bump looking-at forward to avoid
+          ;; resursive replacement.
+          (setq looking-at (+ looking-at (max 0 (- (length v) (length k))))))))
     s))
 
 (defun literate-calc--process-line (line variable-scope &optional destination)
