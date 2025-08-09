@@ -277,6 +277,15 @@ function."
     (should (equal "n = nil => n: nil\n= n => nil"
                    (buffer-string)))))
 
+(ert-deftest literate-calc-mode-test/solving-equations ()
+  (with-temp-buffer
+    (literate-calc-mode)
+    (insert "y = solve(2 foo = 10, foo)\n")
+    (insert "= 2 * y")
+    (literate-calc-insert-results)
+    (should (equal "y = solve(2 foo = 10, foo) => y: 5\n= 2 * y => 10"
+                   (buffer-string)))))
+
 (provide 'literate-calc-mode-test)
 
 ;;; literate-calc-mode-test.el ends here

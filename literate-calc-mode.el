@@ -129,11 +129,11 @@ buffers larger than this, as measured by `buffer-size'."
 
 (defconst literate-calc--expression
   (rx string-start
-      (opt (1+ (or alphanumeric
+      (opt (+? (or alphanumeric
                    blank
                    (any "-_"))))
       "="
-      (1+ (not (any ?=)))
+      (1+ anything)
       string-end))
 
 (defconst literate-calc--result
@@ -160,14 +160,35 @@ buffers larger than this, as measured by `buffer-size'."
      (when hooks-active
        (literate-calc--setup-hooks))))
 
-(defun literate-calc--eval (value)
-  "Wrapper around `(calc-eval VALUE)' with extra args."
-  (let ((calc-input (if literate-calc-usimplify-results
-                        (format "usimplify(%s)" value)
-                      value)))
-    (calc-eval `(,calc-input
-                 calc-number-radix ,literate-calc-mode-radix
-                 ,@literate-calc-mode-extra-options))))
+(defconst literate-calc--solve-expression
+  (rx string-start
+      "solve("
+      (1+ anything)
+      ","
+      (opt (1+ whitespace))
+      (group (1+ alphabetic))
+      (opt (1+ whitespace))
+      ")"
+      string-end))
+
+(defun literate-calc--eval (value &optional raw)
+  "Wrapper around `(calc-eval VALUE)' with extra args.
+
+If RAW is non-nil, don't pass `literate-calc-mode-extra-options'."
+  (save-match-data
+    (let* ((solve-for (s-match literate-calc--solve-expression value))
+           (calc-input (if literate-calc-usimplify-results
+                           (format "usimplify(%s)" value)
+                         value))
+           (options (if raw
+                        '()
+                      literate-calc-mode-extra-options))
+           (result (calc-eval `(,calc-input
+                                calc-number-radix ,literate-calc-mode-radix
+                                ,@options))))
+      (if solve-for
+          (s-chop-left (+ 3 (length (-second-item solve-for))) result)
+        result))))
 
 (defun literate-calc-set-radix (radix)
   "Set the output radix to RADIX."
@@ -244,7 +265,7 @@ Returns 'nil' if the result is not bound to a name.
 Returns a list of (NAME RESULT) if the result is bound to a name."
   (save-match-data
     (when (string-match-p literate-calc--expression line)
-      (let* ((whole-line (s-split "=" line))
+      (let* ((whole-line (s-split-up-to "=" line 1))
              (var-name (string-trim (car whole-line)))
              (var-value (string-trim (cadr whole-line)))
              (resolved-value (cl-reduce (lambda (s kv)
@@ -267,7 +288,7 @@ Returns a list of (NAME RESULT) if the result is bound to a name."
           ;; formatting-related errors.
           (list var-name (if (string-empty-p resolved-value)
                              "0"
-                           (format "%s" (calc-eval resolved-value)))))))))
+                           (format "%s" (literate-calc--eval resolved-value t)))))))))
 
 ;;;###autoload
 (defun literate-calc-clear-overlays ()

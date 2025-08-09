@@ -121,6 +121,19 @@ You can also use unknown mathematical symbols:
 = x*2 + x-3 => 3 x - 3
 #+end_src
 
+** Solving equations
+
+Equations can be solved with calc's ~solve~ function. For example, this
+is solving for =y=:
+
+#+begin_src fundamental
+y = solve(2y + 3 = 10, y) => y: 3.5
+#+end_src
+
+For now, solve expressions need to be the only expression within a
+line to get evaluated correctly, so ~x = 5 + solve(..~ will not work as
+intended.
+
 ** Evaluation in Org
 
 Org-mode source blocks can be evaluated (~C-c C-c~ by default).
